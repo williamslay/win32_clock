@@ -52,7 +52,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "source\\clock.ico"
+IDI_ICON                ICON                    "source\\clock.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -60,20 +60,44 @@ IDI_ICON1               ICON                    "source\\clock.ico"
 // Menu
 //
 
-IDR_MENU1 MENU
+IDR_MENU MENU
 BEGIN
-    POPUP "文件 (&F)"
+    POPUP "闹钟(&C)"
     BEGIN
-        MENUITEM "导入文件",                        ID_40001
-        MENUITEM "导出文件",                        ID_40002
-        MENUITEM "退出",                          ID_40003
+        POPUP "设置闹钟 "
+        BEGIN
+            MENUITEM "查看已有闹钟(&E)\tAlt+E",           Exsit_Clock
+            MENUITEM "设置新闹钟(&N)\tAlt+N",            New_Clock
+        END
+        MENUITEM "取消闹钟",                        ID_40002
+        MENUITEM "退出",                          Exit
     END
-    POPUP "查看"
+    POPUP "外观(&B)"
     BEGIN
-        MENUITEM "字体",                          ID_40004
-        MENUITEM "图标",                          ID_40005
-        MENUITEM "暂时就这些吧",                      ID_40006
+        MENUITEM "数字式",                         ID_40004
+        MENUITEM "指针式",                         ID_40005, CHECKED
     END
+    POPUP "音乐(&M)"
+    BEGIN
+        MENUITEM "导入文件",                        ID_40007
+    END
+    POPUP "帮助(&H)"
+    BEGIN
+        MENUITEM "联系作者",                        ID_40008
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCELERATOR ACCELERATORS
+BEGIN
+    VK_ESCAPE,      Exit,                   VIRTKEY, NOINVERT
+    "E",            Exsit_Clock,            VIRTKEY, ALT, NOINVERT
+    "N",            New_Clock,              VIRTKEY, ALT, NOINVERT
 END
 
 #endif    // 中文(简体，中国) resources
