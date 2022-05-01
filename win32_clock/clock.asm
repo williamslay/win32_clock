@@ -11,36 +11,31 @@ includelib user32.lib
 include kernel32.inc
 includelib kernel32.lib
 
+; Equ 等值定义
+IDR_MENU1 equ 2000h;菜单
+IDI_ICON1 equ 1000h;图标
+
 ; 数据段
 .data?
 hInstance dd ?
 hWinMain dd ?
+hMenu dd ?
+hIcon dd ?
 
 ; 常量
 .const
-szClassName db 'MyClass',0
-szCaptionMain db 'My first Windows !',0
-szText db 'Win32 Assembly, Simple and powerful !',0
+szClassName db 'Win32Clock',0
+szCaptionMain db 'Music Clock',0
 
 ; 代码段
 .code
+
+
 _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
-    local @stPs:PAINTSTRUCT
-    local @stRect:RECT
-    local @hDc
-            
+ 
     mov eax,uMsg
 
-    .if eax == WM_PAINT
-        invoke BeginPaint,hWnd,addr @stPs
-        mov @hDc,eax
-        invoke GetClientRect,hWnd,addr @stRect
-        invoke DrawText,@hDc,addr szText,-1, \
-            addr @stRect, \
-            DT_SINGLELINE or DT_CENTER or DT_VCENTER
-        invoke EndPaint,hWnd,addr @stPs
-
-    .elseif eax == WM_CLOSE
+    .if eax == WM_CLOSE
         invoke DestroyWindow,hWinMain
         invoke PostQuitMessage,NULL
 
@@ -59,10 +54,22 @@ _WinMain proc
 
     invoke GetModuleHandle,NULL
     mov hInstance,eax
-    invoke RtlZeroMemory,addr @stWndClass,sizeof @stWndClass
 
+    ;载入菜单
+    ;invoke	LoadMenu,hInstance,IDR_MENU1
+	;mov	hMenu,eax
+    
+
+    ;-------注册窗口类---------
+    ;局部变量全0
+    invoke RtlZeroMemory,addr @stWndClass,sizeof @stWndClass
+    
+    ;鼠标
     invoke LoadCursor,0,IDC_ARROW
     mov @stWndClass.hCursor,eax
+    ;加载图标
+    invoke	LoadIcon,hInstance,IDI_ICON1
+    mov	@stWndClass.hIcon,eax
     push hInstance
     pop @stWndClass.hInstance
     mov @stWndClass.cbSize,sizeof WNDCLASSEX
@@ -71,16 +78,16 @@ _WinMain proc
     mov @stWndClass.hbrBackground,COLOR_WINDOW + 1
     mov @stWndClass.lpszClassName,offset szClassName
     invoke RegisterClassEx,addr @stWndClass
-
+    ;-------加载显示窗口---------
     invoke CreateWindowEx,WS_EX_CLIENTEDGE, \
         offset szClassName,offset szCaptionMain, \
         WS_OVERLAPPEDWINDOW, \
-        100,100,600,400, \
+        800,500,600,400, \
         NULL,NULL,hInstance,NULL
     mov hWinMain,eax
     invoke ShowWindow,hWinMain,SW_SHOWNORMAL
     invoke UpdateWindow,hWinMain
-
+    ;-------消息循环---------
     .while TRUE
         invoke GetMessage,addr @stMsg,NULL,0,0
         .break .if eax == 0
