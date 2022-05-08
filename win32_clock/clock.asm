@@ -254,21 +254,27 @@ _getTime endp
 ;闹钟响应程序
 _clock proc	_hWnd
        local	@stTime:SYSTEMTIME
-       pushad
+	   local	@time
+	   
+	   pushad
 	   invoke	GetLocalTime,addr @stTime
-	   invoke   _getTime,temp
-	   movzx	eax,@stTime.wSecond
-	   cmp eax,second
-	   jnz @F
-	   movzx	eax,@stTime.wMinute
-	   cmp eax,minute
-	   jnz @F
-	   movzx	eax,@stTime.wHour
-	   cmp eax,hour
-	   jnz @F
-	   invoke  MessageBox,hWinMain,addr temp,offset szCaptionMain,MB_OK
-@@:    popad
-       ret 
+	   mov	@time,5
+	   .while	@time >0
+	       invoke   _getTime,temp
+	       movzx	eax,@stTime.wSecond
+	       cmp eax,second
+	       jnz @F
+	       movzx	eax,@stTime.wMinute
+	       cmp eax,minute
+	       jnz @F
+	       movzx	eax,@stTime.wHour
+	       cmp eax,hour
+	       jnz @F
+	       invoke  MessageBox,hWinMain,addr temp,offset szCaptionMain,MB_OK
+@@:     dec	@time
+	   .endw
+	   popad
+	   ret 
 _clock	endp
 
 ;消息处理主函数
