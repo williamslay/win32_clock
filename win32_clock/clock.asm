@@ -24,7 +24,10 @@ IDR_ACCELERATOR equ 2000h;加速键
 hInstance dd ?
 hWinMain dd ?
 hMenu dd ?
-
+time  dd 5 dup(?)
+hour dd ?
+minute dd ?
+second dd ?
 ; 常量
 .const
 szClassName db 'Win32Clock',0
@@ -36,6 +39,8 @@ rome_3		db	'Ⅲ',0
 rome_6		db	'Ⅵ',0
 rome_9		db	'Ⅸ',0
 rome_12		db	'Ⅻ',0
+showTime    db  '%02d:%02d:%02d',0
+temp dd 203230
 ; 代码段
 .code
 
@@ -171,6 +176,7 @@ _DrawLine	endp
 ;显示时间
 _ShowTime	proc	_hWnd,_hDC
 		local	@stTime:SYSTEMTIME
+		local	@szBuffer[256]:byte
 
 		pushad
 		invoke	GetLocalTime,addr @stTime
@@ -209,7 +215,12 @@ _ShowTime	proc	_hWnd,_hDC
 		shr	ecx,1
 		add	eax,ecx
 		invoke	_DrawLine,_hDC,eax,70
-;------------------删除画笔对象---------------------
+;---------------显示数字时间---------------------
+        pushad
+		invoke	wsprintf,addr @szBuffer,addr showTime,@stTime.wHour,@stTime.wMinute,@stTime.wSecond
+		invoke TextOut,_hDC,100,250,addr @szBuffer,8
+		popad 
+;---------------删除画笔对象---------------------
 		invoke	GetStockObject,NULL_PEN
 		invoke	SelectObject,_hDC,eax
 		invoke	DeleteObject,eax
@@ -217,6 +228,48 @@ _ShowTime	proc	_hWnd,_hDC
 		ret
 
 _ShowTime	endp
+
+;通过寄存器除法取余分别拿到预设时间的时分秒
+_getTime proc _time
+;--------拿到秒数--------------
+       mov bx,100
+	   mov eax,_time
+	   mov edx,_time
+	   shr edx,16
+	   div bx
+	   movzx edx,dx
+	   mov second,edx
+;--------拿到分数--------------
+       mov dx,0
+	   movzx edx,dx
+       movzx eax,ax
+       div bx
+	   mov minute,edx
+;--------拿到时数--------------
+       movzx edx,al
+       mov hour,edx
+	ret
+_getTime endp
+
+;闹钟响应程序
+_clock proc	_hWnd
+       local	@stTime:SYSTEMTIME
+       pushad
+	   invoke	GetLocalTime,addr @stTime
+	   invoke   _getTime,temp
+	   movzx	eax,@stTime.wSecond
+	   cmp eax,second
+	   jnz @F
+	   movzx	eax,@stTime.wMinute
+	   cmp eax,minute
+	   jnz @F
+	   movzx	eax,@stTime.wHour
+	   cmp eax,hour
+	   jnz @F
+	   invoke  MessageBox,hWinMain,addr temp,offset szCaptionMain,MB_OK
+@@:    popad
+       ret 
+_clock	endp
 
 ;消息处理主函数
 _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
@@ -229,6 +282,7 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 		.elseif	eax ==	WM_PAINT
 			invoke	BeginPaint,hWnd,addr @stPS
 			invoke	_ShowTime,hWnd,eax
+			invoke	_clock,hWnd
 			invoke	EndPaint,hWnd,addr @stPS
 		.elseif	eax ==	WM_CREATE
 			;invoke	SetTimer,hWnd,ID_TIMER,1000,NULL;设置刷新周期1s定时器
