@@ -18,16 +18,16 @@ IDR_ACCELERATOR equ 2000h;加速键
 
 ;ID_TIMER	equ		1;刷新周期定时器标号
 
-
 ; 数据段
 .data?
 hInstance dd ?
 hWinMain dd ?
 hMenu dd ?
-time  dd 5 dup(?)
 hour dd ?
 minute dd ?
 second dd ?
+timearray  dd 10 dup(?)
+clocks dd ?
 ; 常量
 .const
 szClassName db 'Win32Clock',0
@@ -40,7 +40,10 @@ rome_6		db	'Ⅵ',0
 rome_9		db	'Ⅸ',0
 rome_12		db	'Ⅻ',0
 showTime    db  '%02d:%02d:%02d',0
-temp dd 203230
+showTPara   db  '%0d',0
+temp db 'ling~ling~ling',0
+showButton byte 'button',0
+button db 'button',0
 ; 代码段
 .code
 
@@ -177,7 +180,6 @@ _DrawLine	endp
 _ShowTime	proc	_hWnd,_hDC
 		local	@stTime:SYSTEMTIME
 		local	@szBuffer[256]:byte
-
 		pushad
 		invoke	GetLocalTime,addr @stTime
 ; --------------画时钟圆周上的点--------------
@@ -216,10 +218,14 @@ _ShowTime	proc	_hWnd,_hDC
 		add	eax,ecx
 		invoke	_DrawLine,_hDC,eax,70
 ;---------------显示数字时间---------------------
-        pushad
 		invoke	wsprintf,addr @szBuffer,addr showTime,@stTime.wHour,@stTime.wMinute,@stTime.wSecond
 		invoke TextOut,_hDC,100,250,addr @szBuffer,8
-		popad 
+		invoke	wsprintf,addr @szBuffer,addr showTPara,[timearray]
+		invoke TextOut,_hDC,100,270,addr @szBuffer,8
+		invoke	wsprintf,addr @szBuffer,addr showTPara,[timearray+4]
+		invoke TextOut,_hDC,100,290,addr @szBuffer,8
+		invoke	wsprintf,addr @szBuffer,addr showTPara,[timearray+8]
+		invoke TextOut,_hDC,100,310,addr @szBuffer,8
 ;---------------删除画笔对象---------------------
 		invoke	GetStockObject,NULL_PEN
 		invoke	SelectObject,_hDC,eax
@@ -228,6 +234,84 @@ _ShowTime	proc	_hWnd,_hDC
 		ret
 
 _ShowTime	endp
+
+;初始化预存时间数组
+_clockInit proc 
+       local @temp
+       pusha
+	   mov clocks,0
+	   mov ebx,offset timearray
+	   mov @temp,10
+	   .while	@temp >0
+	       mov eax ,@temp
+		   dec eax
+		   shl eax,2
+		   mov ecx,240001
+		   mov [ebx+eax],ecx
+		   dec @temp
+	   .endw
+	   popa
+	   ret
+_clockInit	endp
+
+;设置预存时间
+_clockSet proc _time,i
+       pusha
+	   mov ecx,i
+	   shl ecx ,2;i*4
+	   mov eax,_time
+	   mov ebx,offset timearray
+	   mov [ebx+ecx],eax
+	   inc clocks
+	   popa
+	   ret
+_clockSet	endp
+
+;刷新预存时间数组
+_clockFlush proc 
+       local @temp,@i
+	   mov @temp,10
+       pusha
+	   mov ebx,offset timearray
+	   mov edx,240001
+	   .while	@temp >0
+	        mov eax ,@temp
+		    dec eax
+		    shl eax,2
+			cmp [ebx+eax],edx
+			jz @F
+			push [ebx+eax];从后向前保存数据就
+			mov ecx,240001;统一用240001标记无效数据
+	        mov [ebx+eax],ecx
+@@:         dec @temp
+	   .endw
+	   mov edx,clocks
+	   mov @temp,edx
+	   mov @i,0
+	   .while	@temp >0
+	        mov eax ,@i
+		    shl eax,2
+			pop [ebx+eax]
+            dec @temp
+			inc @i
+	   .endw
+	   popa
+	   ret
+_clockFlush	endp
+
+;删除预存时间
+_clockDelet proc i
+       pusha
+	   mov ecx,i
+	   shl ecx ,2;i*4
+	   mov ebx,offset timearray
+	   mov eax,240001;统一用240001标记无效数据
+	   mov [ebx+ecx],eax
+	   dec clocks
+	   invoke _clockFlush
+	   popa
+	   ret
+_clockDelet	endp
 
 ;通过寄存器除法取余分别拿到预设时间的时分秒
 _getTime proc _time
@@ -254,24 +338,33 @@ _getTime endp
 ;闹钟响应程序
 _clock proc	_hWnd
        local	@stTime:SYSTEMTIME
-	   local	@time
-	   
+	   local	@time;计算循环判断次数
+	   local	@i;计算循环判断次数
 	   pushad
 	   invoke	GetLocalTime,addr @stTime
-	   mov	@time,5
+	   mov ebx,clocks
+	   mov @time,ebx
+	   mov ecx,offset timearray
+	   mov @i,0
 	   .while	@time >0
-	       invoke   _getTime,temp
+		   mov ebx ,@i
+		   shl ebx,2
+	       invoke   _getTime,[ecx+ebx]
 	       movzx	eax,@stTime.wSecond
 	       cmp eax,second
 	       jnz @F
 	       movzx	eax,@stTime.wMinute
 	       cmp eax,minute
 	       jnz @F
+		   cmp eax,0
+		   jz @r
 	       movzx	eax,@stTime.wHour
 	       cmp eax,hour
 	       jnz @F
-	       invoke  MessageBox,hWinMain,addr temp,offset szCaptionMain,MB_OK
+	       jz @r
+@r:     invoke  MessageBox,hWinMain,addr temp,offset szCaptionMain,MB_OK
 @@:     dec	@time
+        inc @i
 	   .endw
 	   popad
 	   ret 
@@ -281,7 +374,6 @@ _clock	endp
 _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 
     local	@stPS:PAINTSTRUCT
- 
     mov eax,uMsg
 	.if	eax ==	WM_TIMER;刷新定时器消息
 			invoke	InvalidateRect,hWnd,NULL,TRUE
@@ -293,11 +385,19 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 		.elseif	eax ==	WM_CREATE
 			;invoke	SetTimer,hWnd,ID_TIMER,1000,NULL;设置刷新周期1s定时器
 			invoke	SetTimer,hWnd,1,1000,NULL;设置刷新周期1s定时器
+			invoke CreateWindowEx,NULL,offset button,offset showButton,\
+		      WS_CHILD or WS_VISIBLE,300,100,60,30,\  
+		      hWnd,1,hInstance,NULL  ;1表示该按钮的句柄是1
         .elseif eax == WM_CLOSE
 		    ;invoke	KillTimer,hWnd,ID_TIMER;撤销刷新周期定时器
 			invoke	KillTimer,hWnd,1;撤销刷新周期定时器
             invoke DestroyWindow,hWinMain
             invoke PostQuitMessage,NULL
+		.elseif eax==WM_COMMAND  ;点击时候产生的消息是WM_COMMAND
+		      mov eax,wParam  ;其中参数wParam里存的是句柄，如果点击了一个按钮，则wParam是那个按钮的句柄
+		       .if eax==1  
+			     invoke _clockDelet,1
+               .endif
         .else  
             invoke DefWindowProc,hWnd,uMsg,wParam,lParam
           ret
@@ -314,18 +414,14 @@ _WinMain proc
 
     invoke GetModuleHandle,NULL
     mov hInstance,eax
-
     ;载入菜单
     invoke	LoadMenu,hInstance,IDR_MENU
 	mov	hMenu,eax
     ;载入加速键
     invoke	LoadAccelerators,hInstance,IDR_ACCELERATOR
 	mov	@hAccelerator,eax
-
     ;-------注册窗口类---------
-    ;局部变量全0
     invoke RtlZeroMemory,addr @stWndClass,sizeof @stWndClass
-    
     ;鼠标
     invoke LoadCursor,0,IDC_ARROW
     mov @stWndClass.hCursor,eax
@@ -350,6 +446,10 @@ _WinMain proc
     invoke ShowWindow,hWinMain,SW_SHOWNORMAL
     invoke UpdateWindow,hWinMain
     ;-------消息循环---------
+	invoke _clockInit
+	invoke _clockSet,190303,0
+	invoke _clockSet,190304,1
+	invoke _clockSet,190305,2
     .while TRUE
         invoke GetMessage,addr @stMsg,NULL,0,0
         .break .if eax == 0
