@@ -47,7 +47,7 @@
    - resedit 的配置以及使用（这里使用该工具是出于一个教学视屏推荐，后发现无需时使用该工具）
 - 遇见的错误：
    - 错误 A2044	invalid character in file - 使用masm32时由于库自身的bug原因，项目的命名以及安装路径中`不能含有空格！！！`
-   - 错误 A2026 constant expected winextra.inc 11052行和11053行 -高于14.26.28801的msvc工具集编译不了`masm32v11r`环境的汇编，通过补增一个低版本的msvc工具即可解决[<sup>2</sup>](#refer-anchor-1)
+   - 错误 A2026 constant expected winextra.inc 11052行和11053行 -高于14.26.28801的msvc工具集编译不了`masm32v11r`环境的汇编，通过补增一个低版本的msvc工具即可解决[<sup>2</sup>](#refer-anchor-2)
    - resedit 缺少相应的lib库，经过试验，为vc++6.0的lib库支持。
 
 ### day3 1/5/22
@@ -62,10 +62,29 @@
 - 遇见的错误：
    - 由于动态计算窗口和时钟位置过于繁复，故采取了固定的的winstyle。这里需注意`CreateWindowEx`函数的多参数写法
    - 计算设定时间和所需的时间的转换方式应当注意type的转换和寄存器位数的提升
+### day5 14/5/22
+- 主要成果
+   - 完成了对存储定时时间数组的初始化，增加，删除的接口函数
+   - 初始了解窗口间信息传递机制，试验性的完成了一个button的功能,参考借鉴为[<sup>3，4</sup>](#refer-anchor-34)
+   - 综上，定时机制完全完成，后需要界面介入
+- 遇见的错误：
+   - 传参过程间对操作数寻址的操作，需要对操作数的加减倍乘操作需要通过运算完成，而使用`+,-,*,\`的快捷运算会涉及到地址的变换，无法实际操作到数
+   - 由于传参的操作是无法指定数据类型的，所以相应的数据对应转换操作都应该借助于常用寄存器完成
 ---
 ## References
 
-<div id="refer-anchor-1"></div>
-- [1][汇编环境搭建(vs2010(2012)+masm32)](https://blog.csdn.net/u013761036/article/details/52186683)
-<div id="refer-anchor-2"></div>
-- [2][一个Bug解决办法](https://blog.csdn.net/DongMaoup/article/details/120471110)
+<span id="refer-anchor-1">
+
+-[1][汇编环境搭建(vs2010(2012)+masm32)](https://blog.csdn.net/u013761036/article/details/52186683)
+
+</span>
+<span id="refer-anchor-2"> 
+
+-[2][一个Bug解决办法](https://blog.csdn.net/DongMaoup/article/details/120471110)</span>
+
+<span id="refer-anchor-34">
+
+-[3] [win32汇编窗口中添加第一个按钮](https://blog.csdn.net/weixin_36796040/article/details/78929614)
+
+-[4][Win32 汇编学习 (9)：窗口控件](https://ld246.com/article/1518447052739)
+</span>
