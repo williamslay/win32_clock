@@ -70,21 +70,43 @@
 - 遇见的错误：
    - 传参过程间对操作数寻址的操作，需要对操作数的加减倍乘操作需要通过运算完成，而使用`+,-,*,\`的快捷运算会涉及到地址的变换，无法实际操作到数
    - 由于传参的操作是无法指定数据类型的，所以相应的数据对应转换操作都应该借助于常用寄存器完成
+### day6 15/5/22
+- 完成闹钟显示界面，设置删除修改界面待完成
+- 完成了音乐资源的导入和设置
+- 遇见的错误：
+   - 不同的画文本函数 - DrawText[<sup>5</sup>](#refer-anchor-5)，以及设置定义容器RECT的函数[<sup>6</sup>](#refer-anchor-6)
+   - 字体及设备环境相关，如何修改一个待输出字体的字体大小和高度，尚未解决。参考了相关文档[<sup>7</sup>](#refer-anchor-7)
+   - 将音乐资源文件（wav）嵌入资源文件，并进行播放，参考了相关文档[<sup>8</sup>](#refer-anchor-8)
 ---
 ## References
 
 <span id="refer-anchor-1">
 
--[1][汇编环境搭建(vs2010(2012)+masm32)](https://blog.csdn.net/u013761036/article/details/52186683)
-
+-[1] [汇编环境搭建(vs2010(2012)+masm32)](https://blog.csdn.net/u013761036/article/details/52186683)
 </span>
 <span id="refer-anchor-2"> 
 
--[2][一个Bug解决办法](https://blog.csdn.net/DongMaoup/article/details/120471110)</span>
-
+-[2] [一个Bug解决办法](https://blog.csdn.net/DongMaoup/article/details/120471110)</span>
 <span id="refer-anchor-34">
 
--[3] [win32汇编窗口中添加第一个按钮](https://blog.csdn.net/weixin_36796040/article/details/78929614)
+-[3] [windows应用开发-按钮（Windows 控件）](https://docs.microsoft.com/zh-cn/windows/win32/controls/buttons)
 
--[4][Win32 汇编学习 (9)：窗口控件](https://ld246.com/article/1518447052739)
+-[4] [windows应用开发-控件库](https://docs.microsoft.com/zh-cn/windows/win32/controls/individual-control-info)
+</span>
+<span id="refer-anchor-5">
+
+-[5] [windows函数库 -DrawText](https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-drawtext)
+</span>
+
+<span id="refer-anchor-6">
+
+-[6] [windows函数库 -SetRect](https://docs.microsoft.com/zh-CN/windows/win32/api/winuser/nf-winuser-setrect)
+</span>
+<span id="refer-anchor-7">
+
+-[7] [win32应用 -Fonts and Text](https://docs.microsoft.com/en-us/windows/win32/gdi/string-widths-and-heights)
+</span>
+<span id="refer-anchor-8">
+
+-[8] [windows函数库 -PlaySound](https://docs.microsoft.com/zh-cn/windows/win32/multimedia/playing-wave-resources)
 </span>

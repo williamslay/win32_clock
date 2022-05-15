@@ -34,4 +34,29 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="source\mp32.bin">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="source\music1.bin">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="source\wave1.bin">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="source\t1.wav">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="source\r2.wav">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="source\svc.wav">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="source\arb.wav">
+      <Filter>资源文件</Filter>
+    </Media>
+  </ItemGroup>
 </Project>

@@ -10,12 +10,18 @@ include user32.inc
 includelib user32.lib
 include kernel32.inc
 includelib kernel32.lib
+include		winmm.inc
+includelib	winmm.lib
 
 ; Equ 等值定义
 IDI_ICON equ 1000h;图标
 IDR_MENU equ 2000h;菜单
 IDR_ACCELERATOR equ 2000h;加速键
-
+MUSIC_T1 equ 5001h
+MUSIC_R2 equ 5002h
+MUSIC_SVC equ 5003h
+MUSIC_ARB equ 5004h
+MUSIC equ MUSIC_ARB
 ;ID_TIMER	equ		1;刷新周期定时器标号
 
 ; 数据段
@@ -40,9 +46,11 @@ rome_6		db	'Ⅵ',0
 rome_9		db	'Ⅸ',0
 rome_12		db	'Ⅻ',0
 showTime    db  '%02d:%02d:%02d',0
-showTPara   db  '%0d',0
-temp db 'ling~ling~ling',0
-showButton byte 'button',0
+showClock   db  '已设置闹钟',0
+mptionMain db 'clock',0
+clockMessage db 'ling~ling~ling',0
+Button1txt db '增设',0
+Button2txt db '删除',0
 button db 'button',0
 ; 代码段
 .code
@@ -217,15 +225,9 @@ _ShowTime	proc	_hWnd,_hDC
 		shr	ecx,1
 		add	eax,ecx
 		invoke	_DrawLine,_hDC,eax,70
-;---------------显示数字时间---------------------
+;---------------显示数字时间以及已经定时的闹钟--------------------
 		invoke	wsprintf,addr @szBuffer,addr showTime,@stTime.wHour,@stTime.wMinute,@stTime.wSecond
 		invoke TextOut,_hDC,100,250,addr @szBuffer,8
-		invoke	wsprintf,addr @szBuffer,addr showTPara,[timearray]
-		invoke TextOut,_hDC,100,270,addr @szBuffer,8
-		invoke	wsprintf,addr @szBuffer,addr showTPara,[timearray+4]
-		invoke TextOut,_hDC,100,290,addr @szBuffer,8
-		invoke	wsprintf,addr @szBuffer,addr showTPara,[timearray+8]
-		invoke TextOut,_hDC,100,310,addr @szBuffer,8
 ;---------------删除画笔对象---------------------
 		invoke	GetStockObject,NULL_PEN
 		invoke	SelectObject,_hDC,eax
@@ -234,6 +236,94 @@ _ShowTime	proc	_hWnd,_hDC
 		ret
 
 _ShowTime	endp
+
+;通过寄存器除法取余分别拿到预设时间的时分秒
+_getTime proc _time
+;--------拿到秒数--------------
+       mov bx,100
+	   mov eax,_time
+	   mov edx,_time
+	   shr edx,16
+	   div bx
+	   movzx edx,dx
+	   mov second,edx
+;--------拿到分数--------------
+       mov dx,0
+	   movzx edx,dx
+       movzx eax,ax
+       div bx
+	   mov minute,edx
+;--------拿到时数--------------
+       movzx edx,al
+       mov hour,edx
+	ret
+_getTime endp
+
+;已有闹钟显示
+_ShowClock	proc	_hWnd,_hDC       
+        local	@szBuffer[256]:byte
+		local	@stRect:RECT
+		pushad
+		invoke  SetRect,addr @stRect,300,20,380,60
+		invoke	DrawText,_hDC,addr showClock,-1,\
+				addr @stRect,\
+				DT_SINGLELINE or DT_VCENTER or DT_CENTER or DT_EDITCONTROL
+		mov eax ,clocks
+		cmp eax ,0
+		jz @1
+		cmp eax ,1
+		jz @1
+		cmp eax ,2
+		jz @2
+		cmp eax ,3
+		jz @3
+		cmp eax ,4
+		jz @4
+		cmp eax ,5
+		jz @5
+		cmp eax ,6
+		jz @6
+		cmp eax ,7
+		jz @7
+		cmp eax ,8
+		jz @8
+		cmp eax ,9
+		jz @9
+		cmp eax ,10
+		jz @10
+@10:		invoke  _getTime,[timearray+36]
+            invoke	wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+		    invoke TextOut,_hDC,380,140,addr @szBuffer,8
+@9:		    invoke  _getTime,[timearray+32]
+            invoke	wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+		    invoke TextOut,_hDC,380,120,addr @szBuffer,8
+@8:		    invoke  _getTime,[timearray+28]
+            invoke	wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+		    invoke TextOut,_hDC,380,100,addr @szBuffer,8
+@7:		    invoke  _getTime,[timearray+24]
+            invoke	wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+		    invoke TextOut,_hDC,380,80,addr @szBuffer,8
+@6:		    invoke  _getTime,[timearray+20]
+            invoke	wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+		    invoke TextOut,_hDC,380,60,addr @szBuffer,8
+@5:		    invoke  _getTime,[timearray+16]
+            invoke	wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+		    invoke TextOut,_hDC,300,140,addr @szBuffer,8
+@4:		    invoke  _getTime,[timearray+12]
+            invoke	wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+		    invoke TextOut,_hDC,300,120,addr @szBuffer,8
+@3:		    invoke  _getTime,[timearray+8]
+            invoke	wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+		    invoke TextOut,_hDC,300,100,addr @szBuffer,8
+@2:		    invoke  _getTime,[timearray+4]
+            invoke	wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+		    invoke TextOut,_hDC,300,80,addr @szBuffer,8
+@1:		    invoke  _getTime,[timearray]
+            invoke	wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+		    invoke TextOut,_hDC,300,60,addr @szBuffer,8
+		popad
+		ret
+_ShowClock   endp
 
 ;初始化预存时间数组
 _clockInit proc 
@@ -254,8 +344,8 @@ _clockInit proc
 	   ret
 _clockInit	endp
 
-;设置预存时间
-_clockSet proc _time,i
+;设置预存时间数组
+_clockArraySet proc _time,i
        pusha
 	   mov ecx,i
 	   shl ecx ,2;i*4
@@ -263,6 +353,15 @@ _clockSet proc _time,i
 	   mov ebx,offset timearray
 	   mov [ebx+ecx],eax
 	   inc clocks
+	   popa
+	   ret
+_clockArraySet	endp
+
+;设置预存时间
+_clockSet proc 
+       
+       pusha
+
 	   popa
 	   ret
 _clockSet	endp
@@ -313,28 +412,6 @@ _clockDelet proc i
 	   ret
 _clockDelet	endp
 
-;通过寄存器除法取余分别拿到预设时间的时分秒
-_getTime proc _time
-;--------拿到秒数--------------
-       mov bx,100
-	   mov eax,_time
-	   mov edx,_time
-	   shr edx,16
-	   div bx
-	   movzx edx,dx
-	   mov second,edx
-;--------拿到分数--------------
-       mov dx,0
-	   movzx edx,dx
-       movzx eax,ax
-       div bx
-	   mov minute,edx
-;--------拿到时数--------------
-       movzx edx,al
-       mov hour,edx
-	ret
-_getTime endp
-
 ;闹钟响应程序
 _clock proc	_hWnd
        local	@stTime:SYSTEMTIME
@@ -362,7 +439,11 @@ _clock proc	_hWnd
 	       cmp eax,hour
 	       jnz @F
 	       jz @r
-@r:     invoke  MessageBox,hWinMain,addr temp,offset szCaptionMain,MB_OK
+@r:     invoke PlaySound,MUSIC,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
+        invoke  MessageBox,hWinMain,addr clockMessage,offset mptionMain,MB_OK
+		.if eax==1
+	   invoke  PlaySound,NULL,NULL,SND_ASYNC 
+		.endif
 @@:     dec	@time
         inc @i
 	   .endw
@@ -372,22 +453,26 @@ _clock	endp
 
 ;消息处理主函数
 _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
-
     local	@stPS:PAINTSTRUCT
+	local @timechoose:INITCOMMONCONTROLSEX
     mov eax,uMsg
 	.if	eax ==	WM_TIMER;刷新定时器消息
 			invoke	InvalidateRect,hWnd,NULL,TRUE
 		.elseif	eax ==	WM_PAINT
 			invoke	BeginPaint,hWnd,addr @stPS
 			invoke	_ShowTime,hWnd,eax
+			invoke  _ShowClock,hWnd,eax
 			invoke	_clock,hWnd
 			invoke	EndPaint,hWnd,addr @stPS
 		.elseif	eax ==	WM_CREATE
 			;invoke	SetTimer,hWnd,ID_TIMER,1000,NULL;设置刷新周期1s定时器
 			invoke	SetTimer,hWnd,1,1000,NULL;设置刷新周期1s定时器
-			invoke CreateWindowEx,NULL,offset button,offset showButton,\
-		      WS_CHILD or WS_VISIBLE,300,100,60,30,\  
-		      hWnd,1,hInstance,NULL  ;1表示该按钮的句柄是1
+			invoke CreateWindowEx,NULL,offset button,offset Button1txt,\
+		      WS_CHILD or WS_VISIBLE,300,200,60,30,\  
+		      hWnd,2,hInstance,NULL  ;1表示该按钮的句柄是1
+			invoke CreateWindowEx,NULL,offset button,offset Button2txt,\
+		      WS_CHILD or WS_VISIBLE,380,200,60,30,\  
+		      hWnd,3,hInstance,NULL  ;1表示该按钮的句柄是2
         .elseif eax == WM_CLOSE
 		    ;invoke	KillTimer,hWnd,ID_TIMER;撤销刷新周期定时器
 			invoke	KillTimer,hWnd,1;撤销刷新周期定时器
@@ -395,8 +480,12 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
             invoke PostQuitMessage,NULL
 		.elseif eax==WM_COMMAND  ;点击时候产生的消息是WM_COMMAND
 		      mov eax,wParam  ;其中参数wParam里存的是句柄，如果点击了一个按钮，则wParam是那个按钮的句柄
-		       .if eax==1  
-			     invoke _clockDelet,1
+		       .if eax==2  
+				   invoke PlaySound,MUSIC,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
+                   invoke  MessageBox,hWinMain,addr clockMessage,offset mptionMain,MB_OK
+		           .if eax==1
+	               invoke  PlaySound,NULL,NULL,SND_ASYNC
+				   .endif
                .endif
         .else  
             invoke DefWindowProc,hWnd,uMsg,wParam,lParam
@@ -447,9 +536,9 @@ _WinMain proc
     invoke UpdateWindow,hWinMain
     ;-------消息循环---------
 	invoke _clockInit
-	invoke _clockSet,190303,0
-	invoke _clockSet,190304,1
-	invoke _clockSet,190305,2
+	invoke _clockArraySet,190303,0
+	invoke _clockArraySet,190304,1
+	invoke _clockArraySet,193400,2
     .while TRUE
         invoke GetMessage,addr @stMsg,NULL,0,0
         .break .if eax == 0

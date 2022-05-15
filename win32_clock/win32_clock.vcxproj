@@ -30,6 +30,17 @@
   <ItemGroup>
     <Image Include="source\clock.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="source\mp32.bin" />
+    <None Include="source\music1.bin" />
+    <None Include="source\wave1.bin" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="source\arb.wav" />
+    <Media Include="source\r2.wav" />
+    <Media Include="source\svc.wav" />
+    <Media Include="source\t1.wav" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
