@@ -3,8 +3,6 @@
 // π© menu.rc  π”√
 //
 #define IDD_DIALOG1                     104
-#define MUSIC1_                         116
-#define IDR_WAVE1                       117
 #define IDR_MENU                        0x2000
 #define IDR_ACCELERATOR                 0x2000
 #define New_Clock                       0x4001
@@ -33,13 +31,21 @@
 #define ID_40029                        40029
 #define ID_40030                        40030
 #define ID_40031                        40031
+#define T1                              40032
+#define R2                              40033
+#define SVC                             40034
+#define ID_40035                        40035
+#define T1_Set                          0x4201
+#define R2_Set                          0x4202
+#define SVC_Set                         0x4203
+#define Arb_Set                         0x4204
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        118
-#define _APS_NEXT_COMMAND_VALUE         40032
+#define _APS_NEXT_COMMAND_VALUE         40040
 #define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

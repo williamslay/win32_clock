@@ -72,16 +72,16 @@ BEGIN
     POPUP "外观(&B)"
     BEGIN
         MENUITEM "数字式",                         ID_40004
-        MENUITEM "指针式",                         ID_40005, CHECKED
+        MENUITEM "指针式",                         ID_40005
     END
     POPUP "音乐(&M)"
     BEGIN
         POPUP "修改音乐"
         BEGIN
-            MENUITEM "Tchaikovsky no.1 piano conerto", ID_40028
-            MENUITEM "Rachmaninoff no.2 piano conerto", ID_40029
-            MENUITEM "Sibelius volin conerto",      ID_40030
-            MENUITEM "Debussy arabesque no.1",      ID_40031, CHECKED
+            MENUITEM "Tchaikovsky no.1 piano conerto", T1_Set
+            MENUITEM "Rachmaninoff no.2 piano conerto", R2_Set
+            MENUITEM "Sibelius volin conerto",      SVC_Set
+            MENUITEM "Debussy arabesque no.1",      Arb_Set
         END
     END
     POPUP "帮助(&H)"

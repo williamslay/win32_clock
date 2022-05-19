@@ -71,12 +71,18 @@
    - 传参过程间对操作数寻址的操作，需要对操作数的加减倍乘操作需要通过运算完成，而使用`+,-,*,\`的快捷运算会涉及到地址的变换，无法实际操作到数
    - 由于传参的操作是无法指定数据类型的，所以相应的数据对应转换操作都应该借助于常用寄存器完成
 ### day6 15/5/22
-- 完成闹钟显示界面，设置删除修改界面待完成
-- 完成了音乐资源的导入和设置
+- 主要成果
+   - 完成闹钟显示界面，设置删除修改界面待完成
+   - 完成了音乐资源的导入和设置
 - 遇见的错误：
    - 不同的画文本函数 - DrawText[<sup>5</sup>](#refer-anchor-5)，以及设置定义容器RECT的函数[<sup>6</sup>](#refer-anchor-6)
    - 字体及设备环境相关，如何修改一个待输出字体的字体大小和高度，尚未解决。参考了相关文档[<sup>7</sup>](#refer-anchor-7)
    - 将音乐资源文件（wav）嵌入资源文件，并进行播放，参考了相关文档[<sup>8</sup>](#refer-anchor-8)
+### day7 19/5/22
+- 主要成果
+    - 完成了音乐修改部分
+- 遇见的错误：
+    - 暂时无法解决菜单栏内单选项`cheaked`样式为`radio`选择，参考了参考了相关文档[<sup>9</sup>](#refer-anchor-9)
 ---
 ## References
 
@@ -109,4 +115,7 @@
 <span id="refer-anchor-8">
 
 -[8] [windows函数库 -PlaySound](https://docs.microsoft.com/zh-cn/windows/win32/multimedia/playing-wave-resources)
+</span>
+<span id="refer-anchor-9">
+-[9] [windows函数库 -CheckMenuRadioItem](https://docs.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-checkmenuradioitem?redirectedfrom=MSDN)
 </span>
