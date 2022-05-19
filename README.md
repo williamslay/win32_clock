@@ -82,7 +82,10 @@
 - 主要成果
     - 完成了音乐修改部分
 - 遇见的错误：
-    - 暂时无法解决菜单栏内单选项`cheaked`样式为`radio`选择，参考了参考了相关文档[<sup>9</sup>](#refer-anchor-9)
+    - 暂时无法解决菜单栏内单选项`cheaked`样式为`radio`选择，参考了相关文档[<sup>9</sup>](#refer-anchor-9)
+
+*ps* 自今日起可能只能忙里偷闲间歇性完成本项目了。
+
 ---
 ## References
 
@@ -117,5 +120,6 @@
 -[8] [windows函数库 -PlaySound](https://docs.microsoft.com/zh-cn/windows/win32/multimedia/playing-wave-resources)
 </span>
 <span id="refer-anchor-9">
+
 -[9] [windows函数库 -CheckMenuRadioItem](https://docs.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-checkmenuradioitem?redirectedfrom=MSDN)
 </span>
