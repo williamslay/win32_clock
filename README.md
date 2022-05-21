@@ -86,6 +86,13 @@
 
 *ps* 自今日起可能只能忙里偷闲间歇性完成本项目了。
 
+### day8 21/5/22
+- 主要成果
+    - 完成了两个主要对话框的资源绘制
+- 遇见的错误：
+    - 开始尝试对话框的设置和窗口交互，参考了相关文档[<sup>10</sup>](#refer-anchor-10)
+
+
 ---
 ## References
 
@@ -123,3 +130,8 @@
 
 -[9] [windows函数库 -CheckMenuRadioItem](https://docs.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-checkmenuradioitem?redirectedfrom=MSDN)
 </span>
+<span id="refer-anchor-9">
+
+-[10] [windows函数库 -dialogboxparama](https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dialogboxparama)
+</span>
+

@@ -17,14 +17,15 @@ includelib	winmm.lib
 IDI_ICON equ 1000h;图标
 IDR_MENU equ 2000h;菜单
 IDR_ACCELERATOR equ 2000h;加速键
-MUSIC_T1 equ 5001h
-MUSIC_R2 equ 5002h
-MUSIC_SVC equ 5003h
-MUSIC_ARB equ 5004h
-T1_Set    equ 4201h
-R2_Set    equ 4202h
-Svc_Set   equ 4203h
-Arb_Set   equ 4204h
+MUSIC_1 equ 5001h
+MUSIC_2 equ 5002h
+MUSIC_3 equ 5003h
+MUSIC_4 equ 5004h
+Music1_Set    equ 4201h
+Music2_Set    equ 4202h
+Music3_Set   equ 4203h
+Music4_Set   equ 4204h
+DLG_ClockSet equ 6001h
 ;ID_TIMER	equ		1;刷新周期定时器标号
 
 ; 数据段
@@ -474,10 +475,10 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 			invoke	SetTimer,hWnd,1,1000,NULL;设置刷新周期1s定时器
 			invoke CreateWindowEx,NULL,offset button,offset Button1txt,\
 		      WS_CHILD or WS_VISIBLE,300,200,60,30,\  
-		      hWnd,2,hInstance,NULL  ;1表示该按钮的句柄是1
+		      hWnd,2,hInstance,NULL  ;1表示该按钮的句柄是2
 			invoke CreateWindowEx,NULL,offset button,offset Button2txt,\
 		      WS_CHILD or WS_VISIBLE,380,200,60,30,\  
-		      hWnd,3,hInstance,NULL  ;1表示该按钮的句柄是2
+		      hWnd,3,hInstance,NULL  ;1表示该按钮的句柄是3
         .elseif eax == WM_CLOSE
 		    ;invoke	KillTimer,hWnd,ID_TIMER;撤销刷新周期定时器
 			invoke	KillTimer,hWnd,1;撤销刷新周期定时器
@@ -486,55 +487,52 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 		.elseif eax == WM_COMMAND  ;点击时候产生的消息是WM_COMMAND
 		      mov eax,wParam  ;其中参数wParam里存的是句柄，如果点击了一个按钮，则wParam是那个按钮的句柄
 		       .if eax == 2  
-				   invoke PlaySound,MUSIC,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
-                   invoke  MessageBox,hWinMain,addr clockMessage,offset mptionMain,MB_OK
-		           .if eax == 1
-	               invoke  PlaySound,NULL,NULL,SND_ASYNC
-				   .endif
+				   invoke	DialogBoxParam,hInstance,DLG_ClockSet,NULL,NULL,NULL
+				   
                .endif
-			   .if	eax >=	T1_Set && eax <= Arb_Set
+			   .if	eax >=	Music1_Set && eax <= Music4_Set
 			    mov ebx,eax
-				.if eax == T1_Set 
-				   invoke PlaySound,MUSIC_T1,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
+				.if eax == Music1_Set 
+				   invoke PlaySound,MUSIC_1,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
 				   invoke MessageBox,hWinMain,addr musicChange,offset mptionMain,MB_YESNO
 			       .if eax == 6
 				    invoke  PlaySound,NULL,NULL,SND_ASYNC
-					mov MUSIC , MUSIC_T1
+					mov MUSIC , MUSIC_1
 				   .elseif eax == 7
 					invoke  PlaySound,NULL,NULL,SND_ASYNC
 				   .endif
 			    .endif
-				.if eax == R2_Set 
-				   invoke PlaySound,MUSIC_R2,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
+				.if eax == Music2_Set 
+				   invoke PlaySound,MUSIC_2,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
 				   invoke MessageBox,hWinMain,addr musicChange,offset mptionMain,MB_YESNO
 			       .if eax == 6
 				    invoke  PlaySound,NULL,NULL,SND_ASYNC
-					mov MUSIC , MUSIC_R2
+					mov MUSIC , MUSIC_2
 				   .elseif eax == 7
 					invoke  PlaySound,NULL,NULL,SND_ASYNC
 				   .endif
 			    .endif
-				.if eax == Svc_Set
-				   invoke PlaySound,MUSIC_SVC,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
+				.if eax == Music3_Set
+				   invoke PlaySound,MUSIC_3,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
 				   invoke MessageBox,hWinMain,addr musicChange,offset mptionMain,MB_YESNO
 			       .if eax == 6
 				    invoke  PlaySound,NULL,NULL,SND_ASYNC
-					mov MUSIC , MUSIC_SVC
+					mov MUSIC , MUSIC_3
 				   .elseif eax == 7
 					invoke  PlaySound,NULL,NULL,SND_ASYNC
 				   .endif
 			    .endif
-				.if eax == Arb_Set 
-				   invoke PlaySound,MUSIC_ARB,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
+				.if eax == Music4_Set 
+				   invoke PlaySound,MUSIC_4,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
 				   invoke MessageBox,hWinMain,addr musicChange,offset mptionMain,MB_YESNO
 			       .if eax == 6
 				    invoke  PlaySound,NULL,NULL,SND_ASYNC
-					mov MUSIC , MUSIC_ARB
+					mov MUSIC , MUSIC_4
 				   .elseif eax == 7
 					invoke  PlaySound,NULL,NULL,SND_ASYNC
 				   .endif
 			    .endif
-			   invoke	CheckMenuRadioItem,hMenu,T1_Set,Arb_Set,ebx,MF_BYCOMMAND
+			   invoke	CheckMenuRadioItem,hMenu,Music1_Set,Music4_Set,ebx,MF_BYCOMMAND
 			  .endif
         .else  
             invoke DefWindowProc,hWnd,uMsg,wParam,lParam
@@ -578,7 +576,7 @@ _WinMain proc
     invoke CreateWindowEx,WS_EX_CLIENTEDGE, \
         offset szClassName,offset szCaptionMain, \
         WS_SYSMENU or WS_MINIMIZEBOX, \
-        800,500,600,400, \
+        900,500,600,400, \
         NULL,hMenu,hInstance,NULL
     mov hWinMain,eax
     invoke ShowWindow,hWinMain,SW_SHOWNORMAL

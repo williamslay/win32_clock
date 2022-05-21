@@ -2,12 +2,22 @@
 // Microsoft Visual C++ 生成的包含文件。
 // 供 menu.rc 使用
 //
-#define IDD_DIALOG1                     104
+#define IDD_ClockSet                    0x6001
+#define IDD_DIALOG2                     124
+#define IDD_ClockDelet                  124
+#define IDOK                            1005
+#define IDCANCEL                        1006
+#define IDC_DATETIMEPICKER2             1008
+#define IDC_LIST1                       1009
 #define IDR_MENU                        0x2000
 #define IDR_ACCELERATOR                 0x2000
 #define New_Clock                       0x4001
 #define Exsit_Clock                     0x4002
 #define Exit                            0x4003
+#define T1_Set                          0x4201
+#define R2_Set                          0x4202
+#define SVC_Set                         0x4203
+#define Arb_Set                         0x4204
 #define MUSIC_T1                        0x5001
 #define MUSIC_R2                        0x5002
 #define MUSIC_SVC                       0x5003
@@ -35,18 +45,15 @@
 #define R2                              40033
 #define SVC                             40034
 #define ID_40035                        40035
-#define T1_Set                          0x4201
-#define R2_Set                          0x4202
-#define SVC_Set                         0x4203
-#define Arb_Set                         0x4204
+#define IDC_STATIC                      -1
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        118
+#define _APS_NEXT_RESOURCE_VALUE        126
 #define _APS_NEXT_COMMAND_VALUE         40040
-#define _APS_NEXT_CONTROL_VALUE         1004
+#define _APS_NEXT_CONTROL_VALUE         1014
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
