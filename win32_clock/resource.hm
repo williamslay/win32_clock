@@ -1,4 +1,4 @@
 // Microsoft Visual C++ generated Help ID include file.
 // Used by menu.rc
 //
-#define HIDOK                           0x807803ed    // IDD_ClockSet
+#define HSetClock_Confirm               0xe0010001    // IDD_ClockSet

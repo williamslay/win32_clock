@@ -2,12 +2,11 @@
 // Microsoft Visual C++ 生成的包含文件。
 // 供 menu.rc 使用
 //
-#define IDD_ClockSet                    0x6001
-#define IDD_DIALOG2                     124
+#define SetClock_Confirm                0x6002
+#define SetClock_Cancel                 0x6003
 #define IDD_ClockDelet                  124
 #define IDOK                            1005
 #define IDCANCEL                        1006
-#define IDC_DATETIMEPICKER2             1008
 #define IDC_LIST1                       1009
 #define IDR_MENU                        0x2000
 #define IDR_ACCELERATOR                 0x2000
@@ -22,6 +21,7 @@
 #define MUSIC_R2                        0x5002
 #define MUSIC_SVC                       0x5003
 #define MUSIC_ARB                       0x5004
+#define IDD_ClockSet                    0x6001
 #define ID_40001                        40001
 #define ID_40002                        40002
 #define ID_40003                        40003
@@ -36,7 +36,6 @@
 #define ID_40022                        40022
 #define Delet_Clock                     40023
 #define Change_Clock                    40024
-#define ID_BUTTON2                      40026
 #define ID_40028                        40028
 #define ID_40029                        40029
 #define ID_40030                        40030
@@ -45,7 +44,6 @@
 #define R2                              40033
 #define SVC                             40034
 #define ID_40035                        40035
-#define IDC_STATIC                      -1
 
 // Next default values for new objects
 // 

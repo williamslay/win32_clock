@@ -21,11 +21,13 @@ MUSIC_1 equ 5001h
 MUSIC_2 equ 5002h
 MUSIC_3 equ 5003h
 MUSIC_4 equ 5004h
-Music1_Set    equ 4201h
-Music2_Set    equ 4202h
+Music1_Set   equ 4201h
+Music2_Set   equ 4202h
 Music3_Set   equ 4203h
 Music4_Set   equ 4204h
 DLG_ClockSet equ 6001h
+SC_Confirm   equ 6002h
+SC_Cancel    equ 6003h
 ;ID_TIMER	equ		1;刷新周期定时器标号
 
 ; 数据段
@@ -265,6 +267,16 @@ _getTime proc _time
 	ret
 _getTime endp
 
+;通过寄存器乘法将时分秒化为数
+_TimeChange proc _Hour,_Minute,_Second
+       pusha
+	   mov bl,100
+	   mov eax,_Hour
+	   mul bl
+	   popa
+	ret
+_TimeChange endp
+
 ;已有闹钟显示
 _ShowClock	proc	_hWnd,_hDC       
         local	@szBuffer[256]:byte
@@ -363,11 +375,30 @@ _clockArraySet proc _time,i
 	   ret
 _clockArraySet	endp
 
-;设置预存时间
-_clockSet proc 
-       
+;clockSet对话框处理程序
+_clockSet proc uses ebx edi esi hWnd,wMsg,wParam,lParam   
+       local @set_Time:SYSTEMTIME
        pusha
+	   mov	eax,wMsg
+		.if	eax ==	WM_CLOSE
+			invoke	EndDialog,hWnd,NULL
+		.elseif	eax ==	WM_INITDIALOG
+			mov eax ,1
+		.elseif	eax ==	WM_COMMAND
+			mov	eax,wParam
+			 .if eax == SC_Cancel
+			    invoke	EndDialog,hWnd,NULL
+			 .elseif eax == SC_Confirm
+			    invoke SendMessage,hWnd,DTM_GETSYSTEMTIME,0,addr @set_Time
+				invoke _TimeChange,@set_Time.wHour,@set_Time.wMinute,@set_Time.wSecond
+				
 
+			 .endif
+		.else
+			mov	eax,FALSE
+			ret
+		.endif
+		mov	eax,TRUE
 	   popa
 	   ret
 _clockSet	endp
@@ -487,7 +518,7 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 		.elseif eax == WM_COMMAND  ;点击时候产生的消息是WM_COMMAND
 		      mov eax,wParam  ;其中参数wParam里存的是句柄，如果点击了一个按钮，则wParam是那个按钮的句柄
 		       .if eax == 2  
-				   invoke	DialogBoxParam,hInstance,DLG_ClockSet,NULL,NULL,NULL
+				   invoke	DialogBoxParam,hInstance,DLG_ClockSet,NULL,offset _clockSet,NULL
 				   
                .endif
 			   .if	eax >=	Music1_Set && eax <= Music4_Set

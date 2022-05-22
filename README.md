@@ -92,7 +92,12 @@
 - 遇见的错误：
     - 开始尝试对话框的设置和窗口交互，参考了相关文档[<sup>10</sup>](#refer-anchor-10)
 
-
+### day9 22/5/22
+- 主要成果
+    - 尝试对对话框过程进行处理
+- 遇见的错误：
+    - 关于时间选择组件`Date and Time Picker Controls(DTP)`，参考了相关文档[<sup>11</sup>](#refer-anchor-11)
+    - 用`DTM_GETSYSTEMTIME`消息未能正确获取用户选择的时间，原因暂未知，参考了相关文档[<sup>12</sup>](#refer-anchor-12)。
 ---
 ## References
 
@@ -130,8 +135,15 @@
 
 -[9] [windows函数库 -CheckMenuRadioItem](https://docs.microsoft.com/zh-cn/windows/win32/api/winuser/nf-winuser-checkmenuradioitem?redirectedfrom=MSDN)
 </span>
-<span id="refer-anchor-9">
+<span id="refer-anchor-10">
 
 -[10] [windows函数库 -dialogboxparama](https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dialogboxparama)
 </span>
+<span id="refer-anchor-11">
 
+-[11] [windows-About Date and Time Picker Controls](https://docs.microsoft.com/en-us/windows/win32/controls/date-and-time-picker-controls)
+</span>
+<span id="refer-anchor-12">
+
+-[12] [windows函数库-GetSystemTime function](https://docs.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getsystemtime)
+</span>
