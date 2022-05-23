@@ -17,20 +17,21 @@ includelib	winmm.lib
 IDI_ICON equ 1000h;图标
 IDR_MENU equ 2000h;菜单
 IDR_ACCELERATOR equ 2000h;加速键
-MUSIC_1 equ 5001h
-MUSIC_2 equ 5002h
-MUSIC_3 equ 5003h
-MUSIC_4 equ 5004h
+New_Clock    equ 4001h
+Delet_Clock  equ 4002h
 Music1_Set   equ 4201h
 Music2_Set   equ 4202h
 Music3_Set   equ 4203h
 Music4_Set   equ 4204h
-DLG_ClockSet equ 6001h
-SC_Confirm   equ 6002h
-SC_Cancel    equ 6003h
-SC_DTP       equ 6004h
-;ID_TIMER	equ		1;刷新周期定时器标号
-
+MUSIC_1 equ 5001h
+MUSIC_2 equ 5002h
+MUSIC_3 equ 5003h
+MUSIC_4 equ 5004h
+DLG_ClockSet   equ 6001h
+SC_Confirm     equ 6002h
+SC_Cancel      equ 6003h
+SC_DTP         equ 6004h
+DLG_ClockDelet equ 6005h
 ; 数据段
 .data?
 hInstance dd ?
@@ -59,6 +60,8 @@ showClock   db  '已设置闹钟',0
 mptionMain db 'clock',0
 clockMessage db 'ling~ling~ling',0
 musicChange db '您确定要修改闹钟铃声吗？',0
+clocksNumAlert1 db '闹钟数量上限为10！',0
+clocksNumAlert2 db '当前没有闹钟！',0
 Button1txt db '增设',0
 Button2txt db '删除',0
 button db 'button',0
@@ -413,6 +416,13 @@ _clockSet proc uses ebx edi esi hWnd,wMsg,wParam,lParam
 	   popa
 	   ret
 _clockSet	endp
+;clockDelet对话框处理程序
+_clockDelet proc 
+       pusha
+
+	   popa
+	   ret
+_clockDelet	endp
 
 ;刷新预存时间数组
 _clockFlush proc 
@@ -447,7 +457,7 @@ _clockFlush proc
 _clockFlush	endp
 
 ;删除预存时间
-_clockDelet proc i
+_clockArrayDelet proc i
        pusha
 	   mov ecx,i
 	   shl ecx ,2;i*4
@@ -458,7 +468,7 @@ _clockDelet proc i
 	   invoke _clockFlush
 	   popa
 	   ret
-_clockDelet	endp
+_clockArrayDelet	endp
 
 ;闹钟响应程序
 _clock proc	_hWnd
@@ -513,24 +523,35 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 			invoke	_clock,hWnd
 			invoke	EndPaint,hWnd,addr @stPS
 		.elseif	eax ==	WM_CREATE
-			;invoke	SetTimer,hWnd,ID_TIMER,1000,NULL;设置刷新周期1s定时器
 			invoke	SetTimer,hWnd,1,1000,NULL;设置刷新周期1s定时器
 			invoke CreateWindowEx,NULL,offset button,offset Button1txt,\
 		      WS_CHILD or WS_VISIBLE,300,200,60,30,\  
-		      hWnd,1,hInstance,NULL  ;1表示该按钮的句柄是2
+		      hWnd,New_Clock,hInstance,NULL  
 			invoke CreateWindowEx,NULL,offset button,offset Button2txt,\
 		      WS_CHILD or WS_VISIBLE,380,200,60,30,\  
-		      hWnd,2,hInstance,NULL  ;1表示该按钮的句柄是3
+		      hWnd,Delet_Clock,hInstance,NULL  
         .elseif eax == WM_CLOSE
-		    ;invoke	KillTimer,hWnd,ID_TIMER;撤销刷新周期定时器
 			invoke	KillTimer,hWnd,1;撤销刷新周期定时器
             invoke DestroyWindow,hWinMain
             invoke PostQuitMessage,NULL
 		.elseif eax == WM_COMMAND  ;点击时候产生的消息是WM_COMMAND
 		      mov eax,wParam  ;其中参数wParam里存的是句柄，如果点击了一个按钮，则wParam是那个按钮的句柄
+			  movzx	eax,ax;加速键的处理
 			   ;增加新闹钟
-		       .if eax == 1  
-				   invoke	DialogBoxParam,hInstance,DLG_ClockSet,NULL,offset _clockSet,NULL
+		       .if eax == New_Clock  
+			       .if clocks == 10
+				     invoke MessageBox,hWinMain,addr clocksNumAlert1,offset mptionMain,MB_OK
+				   .elseif
+				     invoke	DialogBoxParam,hInstance,DLG_ClockSet,NULL,offset _clockSet,NULL
+				   .endif
+               .endif
+			   ;删除闹钟
+			    .if eax == Delet_Clock  
+			       .if clocks == 0
+				     invoke MessageBox,hWinMain,addr clocksNumAlert2,offset mptionMain,MB_OK
+				   .elseif
+				     invoke	DialogBoxParam,hInstance,DLG_ClockDelet,NULL,offset _clockDelet,NULL
+				   .endif
                .endif
 			   ;对音乐的选择
 			   .if	eax >=	Music1_Set && eax <= Music4_Set

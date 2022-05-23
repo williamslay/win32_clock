@@ -69,7 +69,7 @@ IDR_MENU MENU
 BEGIN
     POPUP "闹钟(&C)"
     BEGIN
-        MENUITEM "设置新闹钟\tAlt+A",               New_Clock
+        MENUITEM "设置新闹钟\tAlt+N",                New_Clock
         MENUITEM "调整闹钟\tAlt+C",                 Change_Clock
         MENUITEM "删除闹钟\tAlt+D",                 Delet_Clock
         MENUITEM "退出(&E)",                      Exit
@@ -104,7 +104,6 @@ END
 IDR_ACCELERATOR ACCELERATORS
 BEGIN
     VK_ESCAPE,      Exit,                   VIRTKEY, NOINVERT
-    "E",            Exsit_Clock,            VIRTKEY, ALT, NOINVERT
     "N",            New_Clock,              VIRTKEY, ALT, NOINVERT
 END
 
@@ -129,9 +128,10 @@ BEGIN
     IDD_ClockDelet, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 151
+        RIGHTMARGIN, 177
+        VERTGUIDE, 107
         TOPMARGIN, 7
-        BOTTOMMARGIN, 98
+        BOTTOMMARGIN, 94
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -142,13 +142,13 @@ END
 // WAVE
 //
 
-MUSIC_1                WAVE                    "source\\t1.wav"
+MUSIC_1                 WAVE                    "source\\t1.wav"
 
-MUSIC_2                WAVE                    "source\\r2.wav"
+MUSIC_2                 WAVE                    "source\\r2.wav"
 
-MUSIC_3              WAVE                    "source\\svc.wav"
+MUSIC_3                 WAVE                    "source\\svc.wav"
 
-MUSIC_4               WAVE                    "source\\arb.wav"
+MUSIC_4                 WAVE                    "source\\arb.wav"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -167,15 +167,15 @@ BEGIN
     CONTROL         "",DTP,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,16,35,107,26
 END
 
-IDD_ClockDelet DIALOGEX 0, 0, 158, 105
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_ClockDelet DIALOGEX 0, 0, 184, 111
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTERMOUSE | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "闹钟删除"
 FONT 12, "宋体", 400, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "确定",1,18,84,50,14
-    PUSHBUTTON      "取消",2,86,84,50,14
-    LISTBOX         IDC_LIST1,21,27,115,47,LBS_OWNERDRAWFIXED | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "删除已有闹钟",IDC_STATIC,22,14,117,13
+    DEFPUSHBUTTON   "确定",IDOK,28,91,50,14
+    PUSHBUTTON      "取消",IDCANCEL,96,91,50,14
+    LTEXT           "删除闹钟！",IDC_STATIC,14,16,65,8
+    LISTBOX         IDC_LIST4,24,25,121,48,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
 END
 
 
