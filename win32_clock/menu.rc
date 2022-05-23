@@ -69,7 +69,7 @@ IDR_MENU MENU
 BEGIN
     POPUP "闹钟(&C)"
     BEGIN
-        MENUITEM "设置新闹钟\tAlt+A",                New_Clock
+        MENUITEM "设置新闹钟\tAlt+A",               New_Clock
         MENUITEM "调整闹钟\tAlt+C",                 Change_Clock
         MENUITEM "删除闹钟\tAlt+D",                 Delet_Clock
         MENUITEM "退出(&E)",                      Exit
@@ -83,10 +83,10 @@ BEGIN
     BEGIN
         POPUP "修改音乐"
         BEGIN
-            MENUITEM "Tchaikovsky no.1 piano conerto", T1_Set
-            MENUITEM "Rachmaninoff no.2 piano conerto", R2_Set
-            MENUITEM "Sibelius volin conerto",      SVC_Set
-            MENUITEM "Debussy arabesque no.1",      Arb_Set
+            MENUITEM "Tchaikovsky no.1 piano conerto", MUSIC1_Set
+            MENUITEM "Rachmaninoff no.2 piano conerto", MUSIC2_Set
+            MENUITEM "Sibelius volin conerto",      MUSIC3_Set
+            MENUITEM "Debussy arabesque no.1",      MUSIC4_Set
         END
     END
     POPUP "帮助(&H)"
@@ -142,13 +142,13 @@ END
 // WAVE
 //
 
-MUSIC_T1                WAVE                    "source\\t1.wav"
+MUSIC_1                WAVE                    "source\\t1.wav"
 
-MUSIC_R2                WAVE                    "source\\r2.wav"
+MUSIC_2                WAVE                    "source\\r2.wav"
 
-MUSIC_SVC               WAVE                    "source\\svc.wav"
+MUSIC_3              WAVE                    "source\\svc.wav"
 
-MUSIC_ARB               WAVE                    "source\\arb.wav"
+MUSIC_4               WAVE                    "source\\arb.wav"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ BEGIN
     DEFPUSHBUTTON   "确定",SetClock_Confirm,44,80,50,14,BS_NOTIFY,0,HSetClock_Confirm
     PUSHBUTTON      "取消",SetClock_Cancel,107,80,49,14
     LTEXT           "设置您的新闹钟！",IDC_STATIC,14,16,65,8
-    CONTROL         "",ID_40001,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,16,35,107,26
+    CONTROL         "",DTP,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,16,35,107,26
 END
 
 IDD_ClockDelet DIALOGEX 0, 0, 158, 105

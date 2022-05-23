@@ -28,6 +28,7 @@ Music4_Set   equ 4204h
 DLG_ClockSet equ 6001h
 SC_Confirm   equ 6002h
 SC_Cancel    equ 6003h
+SC_DTP       equ 6004h
 ;ID_TIMER	equ		1;刷新周期定时器标号
 
 ; 数据段
@@ -38,6 +39,7 @@ hMenu dd ?
 hour dd ?
 minute dd ?
 second dd ?
+time dd ?
 timearray  dd 10 dup(?)
 clocks dd ?
 MUSIC dd 5004h
@@ -273,6 +275,14 @@ _TimeChange proc _Hour,_Minute,_Second
 	   mov bl,100
 	   mov eax,_Hour
 	   mul bl
+	   add eax,_Minute
+	   mul bx
+	   mov cx,ax
+	   mov ax,dx
+	   shl eax,16
+	   mov ax,cx
+	   add eax,_Second
+	   mov time,eax
 	   popa
 	ret
 _TimeChange endp
@@ -376,23 +386,24 @@ _clockArraySet proc _time,i
 _clockArraySet	endp
 
 ;clockSet对话框处理程序
-_clockSet proc uses ebx edi esi hWnd,wMsg,wParam,lParam   
+_clockSet proc uses ebx edi esi hWnd,wMsg,wParam,lParam
+       local @DTPhandle
        local @set_Time:SYSTEMTIME
        pusha
 	   mov	eax,wMsg
 		.if	eax ==	WM_CLOSE
 			invoke	EndDialog,hWnd,NULL
-		.elseif	eax ==	WM_INITDIALOG
-			mov eax ,1
 		.elseif	eax ==	WM_COMMAND
 			mov	eax,wParam
 			 .if eax == SC_Cancel
 			    invoke	EndDialog,hWnd,NULL
 			 .elseif eax == SC_Confirm
-			    invoke SendMessage,hWnd,DTM_GETSYSTEMTIME,0,addr @set_Time
+			    invoke GetDlgItem,hWnd,SC_DTP
+				mov  @DTPhandle,eax
+			    invoke SendMessage,@DTPhandle,DTM_GETSYSTEMTIME,0,addr @set_Time
 				invoke _TimeChange,@set_Time.wHour,@set_Time.wMinute,@set_Time.wSecond
-				
-
+				invoke _clockArraySet,time,clocks
+				invoke	EndDialog,hWnd,NULL
 			 .endif
 		.else
 			mov	eax,FALSE
@@ -506,10 +517,10 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 			invoke	SetTimer,hWnd,1,1000,NULL;设置刷新周期1s定时器
 			invoke CreateWindowEx,NULL,offset button,offset Button1txt,\
 		      WS_CHILD or WS_VISIBLE,300,200,60,30,\  
-		      hWnd,2,hInstance,NULL  ;1表示该按钮的句柄是2
+		      hWnd,1,hInstance,NULL  ;1表示该按钮的句柄是2
 			invoke CreateWindowEx,NULL,offset button,offset Button2txt,\
 		      WS_CHILD or WS_VISIBLE,380,200,60,30,\  
-		      hWnd,3,hInstance,NULL  ;1表示该按钮的句柄是3
+		      hWnd,2,hInstance,NULL  ;1表示该按钮的句柄是3
         .elseif eax == WM_CLOSE
 		    ;invoke	KillTimer,hWnd,ID_TIMER;撤销刷新周期定时器
 			invoke	KillTimer,hWnd,1;撤销刷新周期定时器
@@ -517,54 +528,59 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
             invoke PostQuitMessage,NULL
 		.elseif eax == WM_COMMAND  ;点击时候产生的消息是WM_COMMAND
 		      mov eax,wParam  ;其中参数wParam里存的是句柄，如果点击了一个按钮，则wParam是那个按钮的句柄
-		       .if eax == 2  
+			   ;增加新闹钟
+		       .if eax == 1  
 				   invoke	DialogBoxParam,hInstance,DLG_ClockSet,NULL,offset _clockSet,NULL
-				   
                .endif
+			   ;对音乐的选择
 			   .if	eax >=	Music1_Set && eax <= Music4_Set
 			    mov ebx,eax
 				.if eax == Music1_Set 
 				   invoke PlaySound,MUSIC_1,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
 				   invoke MessageBox,hWinMain,addr musicChange,offset mptionMain,MB_YESNO
-			       .if eax == 6
+			       .if eax == IDYES
 				    invoke  PlaySound,NULL,NULL,SND_ASYNC
 					mov MUSIC , MUSIC_1
-				   .elseif eax == 7
+				   .elseif eax == IDNO
 					invoke  PlaySound,NULL,NULL,SND_ASYNC
+					jmp  @F
 				   .endif
 			    .endif
 				.if eax == Music2_Set 
 				   invoke PlaySound,MUSIC_2,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
 				   invoke MessageBox,hWinMain,addr musicChange,offset mptionMain,MB_YESNO
-			       .if eax == 6
+			       .if eax == IDYES
 				    invoke  PlaySound,NULL,NULL,SND_ASYNC
 					mov MUSIC , MUSIC_2
-				   .elseif eax == 7
+				   .elseif eax == IDNO
 					invoke  PlaySound,NULL,NULL,SND_ASYNC
+					jmp  @F
 				   .endif
 			    .endif
 				.if eax == Music3_Set
 				   invoke PlaySound,MUSIC_3,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
 				   invoke MessageBox,hWinMain,addr musicChange,offset mptionMain,MB_YESNO
-			       .if eax == 6
+			       .if eax == IDYES
 				    invoke  PlaySound,NULL,NULL,SND_ASYNC
 					mov MUSIC , MUSIC_3
-				   .elseif eax == 7
+				   .elseif eax == IDNO
 					invoke  PlaySound,NULL,NULL,SND_ASYNC
+					jmp  @F
 				   .endif
 			    .endif
 				.if eax == Music4_Set 
 				   invoke PlaySound,MUSIC_4,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
 				   invoke MessageBox,hWinMain,addr musicChange,offset mptionMain,MB_YESNO
-			       .if eax == 6
+			       .if eax == IDYES
 				    invoke  PlaySound,NULL,NULL,SND_ASYNC
 					mov MUSIC , MUSIC_4
-				   .elseif eax == 7
+				   .elseif eax == IDNO
 					invoke  PlaySound,NULL,NULL,SND_ASYNC
+					jmp  @F
 				   .endif
 			    .endif
-			   invoke	CheckMenuRadioItem,hMenu,Music1_Set,Music4_Set,ebx,MF_BYCOMMAND
-			  .endif
+			   invoke	CheckMenuRadioItem,hMenu,Music1_Set,Music4_Set,ebx,MF_BYCOMMAND			  
+@@:			  .endif
         .else  
             invoke DefWindowProc,hWnd,uMsg,wParam,lParam
           ret

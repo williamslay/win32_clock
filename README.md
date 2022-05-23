@@ -98,6 +98,11 @@
 - 遇见的错误：
     - 关于时间选择组件`Date and Time Picker Controls(DTP)`，参考了相关文档[<sup>11</sup>](#refer-anchor-11)
     - 用`DTM_GETSYSTEMTIME`消息未能正确获取用户选择的时间，原因暂未知，参考了相关文档[<sup>12</sup>](#refer-anchor-12)。
+### day10 23/5/22
+- 主要成果
+    - 解决了昨天的错误，正确获取了DTP控件的时间。昨天的错误是由于调用函数未正确提供控件的句柄。参考文档[<sup>13</sup>](#refer-anchor-13)
+- 遇见的错误：
+    
 ---
 ## References
 
@@ -146,4 +151,8 @@
 <span id="refer-anchor-12">
 
 -[12] [windows函数库-GetSystemTime function](https://docs.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getsystemtime)
+</span>
+<span id="refer-anchor-13">
+
+-[13] [windows函数库-GetDlgItem function](https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getdlgitem)
 </span>

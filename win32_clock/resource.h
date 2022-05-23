@@ -2,26 +2,28 @@
 // Microsoft Visual C++ 生成的包含文件。
 // 供 menu.rc 使用
 //
-#define SetClock_Confirm                0x6002
-#define SetClock_Cancel                 0x6003
 #define IDD_ClockDelet                  124
 #define IDOK                            1005
 #define IDCANCEL                        1006
 #define IDC_LIST1                       1009
+#define IDI_ICON                        0x1000
 #define IDR_MENU                        0x2000
 #define IDR_ACCELERATOR                 0x2000
 #define New_Clock                       0x4001
 #define Exsit_Clock                     0x4002
 #define Exit                            0x4003
-#define T1_Set                          0x4201
-#define R2_Set                          0x4202
-#define SVC_Set                         0x4203
-#define Arb_Set                         0x4204
-#define MUSIC_T1                        0x5001
-#define MUSIC_R2                        0x5002
-#define MUSIC_SVC                       0x5003
-#define MUSIC_ARB                       0x5004
+#define MUSIC1_Set                      0x4201
+#define MUSIC2_Set                      0x4202
+#define MUSIC3_Set                      0x4203
+#define MUSIC4_Set                      0x4204
+#define MUSIC_1                         0x5001
+#define MUSIC_2                         0x5002
+#define MUSIC_3                         0x5003
+#define MUSIC_4                         0x5004
 #define IDD_ClockSet                    0x6001
+#define SetClock_Confirm                0x6002
+#define SetClock_Cancel                 0x6003
+#define DTP                             0x6004
 #define ID_40001                        40001
 #define ID_40002                        40002
 #define ID_40003                        40003
@@ -49,7 +51,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        126
+#define _APS_NEXT_RESOURCE_VALUE        127
 #define _APS_NEXT_COMMAND_VALUE         40040
 #define _APS_NEXT_CONTROL_VALUE         1014
 #define _APS_NEXT_SYMED_VALUE           101
