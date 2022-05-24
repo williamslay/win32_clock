@@ -104,7 +104,11 @@
     - 新增闹钟功能相关的按钮，菜单选项，加速键全部完成
 - 遇见的错误：
     - 加速键的加载问题：由于加速键发出的指令相对正常指令id有所不同，在eax中增加了`1`的前缀，所以设置加速键消息的时候应当注意丢弃这个前缀，以拿到正常相同的命令id
-    - 第二个对话框出现了一些奇怪的bug
+    - 第二个对话框出现了一些奇怪的加载bug
+### day10 23/5/22
+- 主要成果
+    - 解决了昨天的错误。
+    - 删除闹钟功能相关的按钮，菜单选项，加速键全部完成。参考文档[<sup>14</sup>](#refer-anchor-14)
 ---
 ## References
 
@@ -148,7 +152,7 @@
 </span>
 <span id="refer-anchor-11">
 
--[11] [windows-About Date and Time Picker Controls](https://docs.microsoft.com/en-us/windows/win32/controls/date-and-time-picker-controls)
+-[11] [win32应用-About Date and Time Picker Controls](https://docs.microsoft.com/en-us/windows/win32/controls/date-and-time-picker-controls)
 </span>
 <span id="refer-anchor-12">
 
@@ -157,4 +161,8 @@
 <span id="refer-anchor-13">
 
 -[13] [windows函数库-GetDlgItem function](https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getdlgitem)
+</span>
+<span id="refer-anchor-14">
+
+-[14] [win32应用-List Box](https://docs.microsoft.com/en-us/windows/win32/controls/list-boxes)
 </span>

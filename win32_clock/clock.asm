@@ -32,6 +32,9 @@ SC_Confirm     equ 6002h
 SC_Cancel      equ 6003h
 SC_DTP         equ 6004h
 DLG_ClockDelet equ 6005h
+DC_Confirm     equ 6006h
+DC_Cancel      equ 6007h
+Clock_List     equ 6008h
 ; 数据段
 .data?
 hInstance dd ?
@@ -61,7 +64,8 @@ mptionMain db 'clock',0
 clockMessage db 'ling~ling~ling',0
 musicChange db '您确定要修改闹钟铃声吗？',0
 clocksNumAlert1 db '闹钟数量上限为10！',0
-clocksNumAlert2 db '当前没有闹钟！',0
+clocksNumAlert2 db '当前没有闹钟可以删除！',0
+clocksNumAlert3 db '当前没有闹钟！',0
 Button1txt db '增设',0
 Button2txt db '删除',0
 button db 'button',0
@@ -238,7 +242,7 @@ _ShowTime	proc	_hWnd,_hDC
 		shr	ecx,1
 		add	eax,ecx
 		invoke	_DrawLine,_hDC,eax,70
-;---------------显示数字时间以及已经定时的闹钟--------------------
+;---------------显示数字时间--------------------
 		invoke	wsprintf,addr @szBuffer,addr showTime,@stTime.wHour,@stTime.wMinute,@stTime.wSecond
 		invoke TextOut,_hDC,100,250,addr @szBuffer,8
 ;---------------删除画笔对象---------------------
@@ -252,6 +256,7 @@ _ShowTime	endp
 
 ;通过寄存器除法取余分别拿到预设时间的时分秒
 _getTime proc _time
+       pusha
 ;--------拿到秒数--------------
        mov bx,100
 	   mov eax,_time
@@ -269,6 +274,7 @@ _getTime proc _time
 ;--------拿到时数--------------
        movzx edx,al
        mov hour,edx
+	   popa
 	ret
 _getTime endp
 
@@ -301,7 +307,7 @@ _ShowClock	proc	_hWnd,_hDC
 				DT_SINGLELINE or DT_VCENTER or DT_CENTER or DT_EDITCONTROL
 		mov eax ,clocks
 		cmp eax ,0
-		jz @1
+		jz @0
 		cmp eax ,1
 		jz @1
 		cmp eax ,2
@@ -322,6 +328,9 @@ _ShowClock	proc	_hWnd,_hDC
 		jz @9
 		cmp eax ,10
 		jz @10
+@0:         invoke TextOut,_hDC,300,60,offset clocksNumAlert3,14
+            popad
+		    ret
 @10:		invoke  _getTime,[timearray+36]
             invoke	wsprintf,addr @szBuffer,addr showTime,hour,minute,second
 		    invoke TextOut,_hDC,380,140,addr @szBuffer,8
@@ -388,42 +397,6 @@ _clockArraySet proc _time,i
 	   ret
 _clockArraySet	endp
 
-;clockSet对话框处理程序
-_clockSet proc uses ebx edi esi hWnd,wMsg,wParam,lParam
-       local @DTPhandle
-       local @set_Time:SYSTEMTIME
-       pusha
-	   mov	eax,wMsg
-		.if	eax ==	WM_CLOSE
-			invoke	EndDialog,hWnd,NULL
-		.elseif	eax ==	WM_COMMAND
-			mov	eax,wParam
-			 .if eax == SC_Cancel
-			    invoke	EndDialog,hWnd,NULL
-			 .elseif eax == SC_Confirm
-			    invoke GetDlgItem,hWnd,SC_DTP
-				mov  @DTPhandle,eax
-			    invoke SendMessage,@DTPhandle,DTM_GETSYSTEMTIME,0,addr @set_Time
-				invoke _TimeChange,@set_Time.wHour,@set_Time.wMinute,@set_Time.wSecond
-				invoke _clockArraySet,time,clocks
-				invoke	EndDialog,hWnd,NULL
-			 .endif
-		.else
-			mov	eax,FALSE
-			ret
-		.endif
-		mov	eax,TRUE
-	   popa
-	   ret
-_clockSet	endp
-;clockDelet对话框处理程序
-_clockDelet proc 
-       pusha
-
-	   popa
-	   ret
-_clockDelet	endp
-
 ;刷新预存时间数组
 _clockFlush proc 
        local @temp,@i
@@ -437,7 +410,7 @@ _clockFlush proc
 		    shl eax,2
 			cmp [ebx+eax],edx
 			jz @F
-			push [ebx+eax];从后向前保存数据就
+			push [ebx+eax];从后向前保存数据
 			mov ecx,240001;统一用240001标记无效数据
 	        mov [ebx+eax],ecx
 @@:         dec @temp
@@ -469,6 +442,82 @@ _clockArrayDelet proc i
 	   popa
 	   ret
 _clockArrayDelet	endp
+
+;clockSet对话框处理程序
+_clockSet proc uses ebx edi esi hWnd,wMsg,wParam,lParam
+       local @DTPhandle
+       local @set_Time:SYSTEMTIME
+       pusha
+	   mov	eax,wMsg
+		.if	eax ==	WM_CLOSE
+			invoke	EndDialog,hWnd,NULL
+		.elseif	eax ==	WM_COMMAND
+			mov	eax,wParam
+			 .if eax == SC_Cancel
+			    invoke	EndDialog,hWnd,NULL
+			 .elseif eax == SC_Confirm
+			    invoke GetDlgItem,hWnd,SC_DTP
+				mov  @DTPhandle,eax
+			    invoke SendMessage,@DTPhandle,DTM_GETSYSTEMTIME,0,addr @set_Time
+				invoke _TimeChange,@set_Time.wHour,@set_Time.wMinute,@set_Time.wSecond
+				invoke _clockArraySet,time,clocks
+				invoke	EndDialog,hWnd,NULL
+			 .endif
+		.else
+			mov	eax,FALSE
+			ret
+		.endif
+		mov	eax,TRUE
+	   popa
+	   ret
+_clockSet	endp
+
+;clockDelet对话框处理程序
+_clockDelet proc uses ebx edi esi hWnd,wMsg,wParam,lParam
+       local @Listhandle
+	   local @szBuffer[256]:byte
+	   local @i
+	   pusha
+	   invoke GetDlgItem,hWnd,Clock_List
+	   mov  @Listhandle,eax
+	   mov	eax,wMsg
+	    .if eax ==  WM_INITDIALOG
+		    mov @i, 0
+			mov ebx,offset timearray
+			mov edx ,clocks
+			.while	@i < edx
+	           mov eax ,@i
+		       shl eax,2
+		       invoke  _getTime,[ebx+eax]
+               invoke  wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+			   invoke  SendMessage,@Listhandle,LB_ADDSTRING,NULL, addr @szBuffer
+			   mov edx ,clocks
+		       inc  @i
+	        .endw
+		.elseif	eax ==	WM_CLOSE
+			invoke	EndDialog,hWnd,NULL
+		.elseif	eax ==	WM_COMMAND
+			mov	eax,wParam
+			 .if eax == DC_Cancel
+			    invoke	EndDialog,hWnd,NULL
+			 .elseif eax == DC_Confirm
+			    invoke SendMessage,@Listhandle,LB_GETCURSEL,0,0
+				.if eax == LB_ERR
+				   invoke MessageBox,hWinMain,addr clocksNumAlert2,offset mptionMain,MB_OK
+				.else
+				    mov @i,eax
+				    invoke SendMessage,@Listhandle,LB_DELETESTRING,@i,0
+				    invoke _clockArrayDelet,@i
+				.endif
+			 .endif
+		.else
+			mov	eax,FALSE
+			ret
+		.endif
+		mov	eax,TRUE
+	   popa
+	   ret
+_clockDelet	endp
 
 ;闹钟响应程序
 _clock proc	_hWnd
