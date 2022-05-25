@@ -72,7 +72,7 @@ BEGIN
         MENUITEM "设置新闹钟\tAlt+N",                New_Clock
         MENUITEM "调整闹钟\tAlt+C",                 Change_Clock
         MENUITEM "删除闹钟\tAlt+D",                 Delet_Clock
-        MENUITEM "退出(&E)",                      Exit
+        MENUITEM "退出\tExit",                    Exit
     END
     POPUP "外观(&B)"
     BEGIN
@@ -103,9 +103,10 @@ END
 
 IDR_ACCELERATOR ACCELERATORS
 BEGIN
+    "D",            Delet_Clock,            VIRTKEY, ALT, NOINVERT
     VK_ESCAPE,      Exit,                   VIRTKEY, NOINVERT
     "N",            New_Clock,              VIRTKEY, ALT, NOINVERT
-    "D",            Delet_Clock,            VIRTKEY, ALT, NOINVERT
+    "C",            Change_Clock,           VIRTKEY, ALT, NOINVERT
 END
 
 
@@ -120,19 +121,31 @@ BEGIN
     IDD_ClockSet, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 178
+        RIGHTMARGIN, 137
         VERTGUIDE, 107
         TOPMARGIN, 7
-        BOTTOMMARGIN, 94
+        BOTTOMMARGIN, 95
     END
 
     IDD_ClockDelet, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 177
+        RIGHTMARGIN, 139
         VERTGUIDE, 107
         TOPMARGIN, 7
-        BOTTOMMARGIN, 94
+        BOTTOMMARGIN, 95
+    END
+
+    IDD_ClockChange, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+    END
+
+    IDD_CCSet, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -157,26 +170,48 @@ MUSIC_4                 WAVE                    "source\\arb.wav"
 // Dialog
 //
 
-IDD_ClockSet DIALOGEX 0, 0, 185, 101
+IDD_ClockSet DIALOGEX 0, 0, 144, 102
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTERMOUSE | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "闹钟设置"
 FONT 12, "宋体", 400, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "确定",SetClock_Confirm,44,80,50,14,BS_NOTIFY,0,HSetClock_Confirm
-    PUSHBUTTON      "取消",SetClock_Cancel,107,80,49,14
+    DEFPUSHBUTTON   "确定",SetClock_Confirm,16,81,50,14,BS_NOTIFY,0,HCCSet_Confirm
+    PUSHBUTTON      "取消",SetClock_Cancel,74,81,49,14
     LTEXT           "设置您的新闹钟！",IDC_STATIC,14,16,65,8
     CONTROL         "",DTP,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,16,35,107,26
 END
 
-IDD_ClockDelet DIALOGEX 0, 0, 184, 111
+IDD_ClockDelet DIALOGEX 0, 0, 146, 112
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTERMOUSE | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "闹钟删除"
 FONT 12, "宋体", 400, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "确定",DC_Confirm,26,80,50,14
-    PUSHBUTTON      "取消",DC_Concel,107,80,50,14
+    DEFPUSHBUTTON   "确定",DC_Confirm,16,81,50,14
+    PUSHBUTTON      "取消",DC_Concel,82,81,50,14
     LTEXT           "请选择您要删除的闹钟！",IDC_STATIC,14,14,93,8
-    LISTBOX         Clock_List,24,29,130,44,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LISTBOX         Clock_List,15,29,110,44,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_ClockChange DIALOGEX 0, 0, 146, 112
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTERMOUSE | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "闹钟修改"
+FONT 12, "宋体", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "确定",CC_Confirm,16,81,50,14
+    PUSHBUTTON      "取消",CC_Concel,82,81,50,14
+    LTEXT           "请选择您要修改的闹钟！",IDC_STATIC,14,14,93,8
+    LISTBOX         Clock_List2,15,29,110,44,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_CCSet DIALOGEX 0, 0, 144, 102
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTERMOUSE | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "闹钟修改"
+FONT 12, "宋体", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "确定",CCSet_Confirm,16,81,50,14,BS_NOTIFY,0,HCCSet_Confirm
+    PUSHBUTTON      "取消",CCSet_Cancel,74,81,49,14
+    LTEXT           "修改时间！",IDC_STATIC,14,16,65,8
+    CONTROL         "",CC_DTP1,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,16,35,107,26
 END
 
 
@@ -191,6 +226,16 @@ BEGIN
 END
 
 IDD_ClockDelet AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ClockChange AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_CCSet AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

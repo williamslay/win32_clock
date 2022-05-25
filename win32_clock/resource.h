@@ -2,6 +2,7 @@
 // Microsoft Visual C++ 生成的包含文件。
 // 供 menu.rc 使用
 //
+#define IDD_DIALOG1                     135
 #define IDC_MFCVSLISTBOX                1018
 #define IDI_ICON                        0x1000
 #define IDR_MENU                        0x2000
@@ -9,6 +10,7 @@
 #define New_Clock                       0x4001
 #define Delet_Clock                     0x4002
 #define Exit                            0x4003
+#define Change_Clock                    0x4004
 #define MUSIC1_Set                      0x4201
 #define MUSIC2_Set                      0x4202
 #define MUSIC3_Set                      0x4203
@@ -25,6 +27,14 @@
 #define DC_Confirm                      0x6006
 #define DC_Concel                       0x6007
 #define Clock_List                      0x6008
+#define IDD_ClockChange                 0x6009
+#define CC_Confirm                      0x6010
+#define CC_Concel                       0x6011
+#define Clock_List2                     0x6012
+#define CC_DTP1                         0x6013
+#define CCSet_Confirm                   0x6014
+#define CCSet_Cancel                    0x6015
+#define IDD_CCSet                       0x6016
 #define ID_40001                        40001
 #define ID_40002                        40002
 #define ID_40003                        40003
@@ -37,7 +47,6 @@
 #define ID_40010                        40010
 #define ID_40021                        40021
 #define ID_40022                        40022
-#define Change_Clock                    40024
 #define ID_40028                        40028
 #define ID_40029                        40029
 #define ID_40030                        40030
@@ -47,8 +56,8 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        133
-#define _APS_NEXT_COMMAND_VALUE         40043
+#define _APS_NEXT_RESOURCE_VALUE        137
+#define _APS_NEXT_COMMAND_VALUE         40045
 #define _APS_NEXT_CONTROL_VALUE         1030
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -19,6 +19,8 @@ IDR_MENU equ 2000h;菜单
 IDR_ACCELERATOR equ 2000h;加速键
 New_Clock    equ 4001h
 Delet_Clock  equ 4002h
+Exit         equ 4003h
+Change_Clock equ 4004h
 Music1_Set   equ 4201h
 Music2_Set   equ 4202h
 Music3_Set   equ 4203h
@@ -27,14 +29,22 @@ MUSIC_1 equ 5001h
 MUSIC_2 equ 5002h
 MUSIC_3 equ 5003h
 MUSIC_4 equ 5004h
-DLG_ClockSet   equ 6001h
-SC_Confirm     equ 6002h
-SC_Cancel      equ 6003h
-SC_DTP         equ 6004h
-DLG_ClockDelet equ 6005h
-DC_Confirm     equ 6006h
-DC_Cancel      equ 6007h
-Clock_List     equ 6008h
+DLG_ClockSet     equ 6001h
+SC_Confirm       equ 6002h
+SC_Cancel        equ 6003h
+SC_DTP           equ 6004h
+DLG_ClockDelet   equ 6005h
+DC_Confirm       equ 6006h
+DC_Cancel        equ 6007h
+Clock_List       equ 6008h
+DLG_ClockChange  equ 6009h
+CC_Confirm       equ 6010h
+CC_Cancel        equ 6011h
+Clock_List2      equ 6012h
+CC_DTP           equ 6013h
+CCSet_Confirm    equ 6014h
+CCSet_Cancel     equ 6015h
+IDD_CCSet        equ 6016h
 ; 数据段
 .data?
 hInstance dd ?
@@ -46,7 +56,8 @@ second dd ?
 time dd ?
 timearray  dd 10 dup(?)
 clocks dd ?
-MUSIC dd 5004h
+MUSIC dd ?
+temp dd ?
 ; 常量
 .const
 szClassName db 'Win32Clock',0
@@ -66,6 +77,7 @@ musicChange db '您确定要修改闹钟铃声吗？',0
 clocksNumAlert1 db '闹钟数量上限为10！',0
 clocksNumAlert2 db '当前没有闹钟可以删除！',0
 clocksNumAlert3 db '当前没有闹钟！',0
+clocksNumAlert4 db '您没有选择要删除的项！',0
 Button1txt db '增设',0
 Button2txt db '删除',0
 button db 'button',0
@@ -503,7 +515,7 @@ _clockDelet proc uses ebx edi esi hWnd,wMsg,wParam,lParam
 			 .elseif eax == DC_Confirm
 			    invoke SendMessage,@Listhandle,LB_GETCURSEL,0,0
 				.if eax == LB_ERR
-				   invoke MessageBox,hWinMain,addr clocksNumAlert2,offset mptionMain,MB_OK
+				   invoke MessageBox,hWinMain,addr clocksNumAlert4,offset mptionMain,MB_OK
 				.else
 				    mov @i,eax
 				    invoke SendMessage,@Listhandle,LB_DELETESTRING,@i,0
@@ -518,6 +530,117 @@ _clockDelet proc uses ebx edi esi hWnd,wMsg,wParam,lParam
 	   popa
 	   ret
 _clockDelet	endp
+
+;CCSet对话框处理程序
+_CCSet proc uses ebx edi esi hWnd,wMsg,wParam,lParam
+       local @DTPhandle
+       local @set_Time:SYSTEMTIME
+       pusha
+	   invoke GetDlgItem,hWnd,CC_DTP
+	   mov  @DTPhandle,eax
+	   mov  eax,lParam
+	   mov	eax,wMsg
+	    .if eax ==  WM_INITDIALOG
+			    ;显示选中的时间
+	            mov ebx,offset timearray
+	            mov ecx,lParam
+	            shl ecx,2
+	            invoke  _getTime,[ebx+ecx]
+				mov eax,hour
+	            mov @set_Time.wHour   ,ax
+				mov eax,minute
+	            mov @set_Time.wMinute ,ax
+				mov eax,second
+	            mov @set_Time.wSecond ,ax
+				;无意义，随便赋值以使结构体有意义，这里仅用作个人纪念
+				mov eax,2020
+				mov @set_Time.wYear ,ax
+				mov eax,11
+				mov @set_Time.wMonth ,ax
+				mov eax,2
+				mov @set_Time.wDayOfWeek ,ax
+				mov eax,10
+				mov @set_Time.wDay ,ax
+				mov eax,0
+				mov @set_Time.wMilliseconds ,ax
+	            invoke SendMessage,@DTPhandle,DTM_SETSYSTEMTIME,GDT_VALID,addr @set_Time
+		.elseif	eax ==	WM_CLOSE
+			invoke	EndDialog,hWnd,NULL
+		.elseif	eax ==	WM_COMMAND
+			mov	eax,wParam
+			 .if eax == CCSet_Cancel
+			    invoke	EndDialog,hWnd,NULL
+			 .elseif eax == CCSet_Confirm
+			    invoke SendMessage,@DTPhandle,DTM_GETSYSTEMTIME,0,addr @set_Time
+				invoke _TimeChange,@set_Time.wHour,@set_Time.wMinute,@set_Time.wSecond
+				mov ebx,offset timearray
+	            mov ecx, temp
+				shl ecx,2
+				mov edx ,time
+	            mov [ebx+ecx],edx
+				invoke	EndDialog,hWnd,NULL
+			 .endif
+		.else
+			mov	eax,FALSE
+			ret
+		.endif
+		mov	eax,TRUE
+	   popa
+	   ret
+_CCSet	endp
+
+;clockChang对话框处理程序
+_clockChange proc uses ebx edi esi hWnd,wMsg,wParam,lParam
+       local @Listhandle
+	   local @szBuffer[256]:byte
+	   local @i
+	   pusha
+	   invoke GetDlgItem,hWnd,Clock_List2
+	   mov  @Listhandle,eax
+	   mov	eax,wMsg
+	    .if eax ==  WM_INITDIALOG
+		    mov @i, 0
+			mov ebx,offset timearray
+			mov edx ,clocks
+			.while	@i < edx
+	           mov eax ,@i
+		       shl eax,2
+		       invoke  _getTime,[ebx+eax]
+               invoke  wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+			   invoke  SendMessage,@Listhandle,LB_ADDSTRING,NULL, addr @szBuffer
+			   mov edx ,clocks
+		       inc  @i
+	        .endw
+		.elseif	eax ==	WM_CLOSE
+			invoke	EndDialog,hWnd,NULL
+		.elseif	eax ==	WM_COMMAND
+			mov	eax,wParam
+			 .if eax == CC_Cancel
+			    invoke	EndDialog,hWnd,NULL
+			 .elseif eax == CC_Confirm
+			    invoke SendMessage,@Listhandle,LB_GETCURSEL,0,0
+				.if eax == LB_ERR
+				   invoke MessageBox,hWinMain,addr clocksNumAlert4,offset mptionMain,MB_OK
+				.else
+				    mov temp,eax
+					invoke  SendMessage,@Listhandle,LB_DELETESTRING,temp,0
+					invoke	DialogBoxParam,hInstance,IDD_CCSet,NULL,offset _CCSet,temp
+					mov ebx,offset timearray
+					mov eax ,temp
+		            shl eax,2
+		            invoke  _getTime,[ebx+eax]
+                    invoke  wsprintf,addr @szBuffer,addr showTime,hour,minute,second
+			        invoke  SendMessage,@Listhandle,LB_ADDSTRING,NULL, addr @szBuffer
+				.endif
+			 .endif
+		.else
+			mov	eax,FALSE
+			ret
+		.endif
+		mov	eax,TRUE
+	   popa
+	   ret
+_clockChange	endp
 
 ;闹钟响应程序
 _clock proc	_hWnd
@@ -558,6 +681,7 @@ _clock proc	_hWnd
 	   ret 
 _clock	endp
 
+
 ;消息处理主函数
 _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
     local	@stPS:PAINTSTRUCT
@@ -586,6 +710,12 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 		.elseif eax == WM_COMMAND  ;点击时候产生的消息是WM_COMMAND
 		      mov eax,wParam  ;其中参数wParam里存的是句柄，如果点击了一个按钮，则wParam是那个按钮的句柄
 			  movzx	eax,ax;加速键的处理
+			   ;退出
+			   .if eax ==  Exit
+			     invoke	KillTimer,hWnd,1;撤销刷新周期定时器
+                 invoke DestroyWindow,hWinMain
+                 invoke PostQuitMessage,NULL
+			   .endif
 			   ;增加新闹钟
 		       .if eax == New_Clock  
 			       .if clocks == 10
@@ -595,13 +725,21 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 				   .endif
                .endif
 			   ;删除闹钟
-			    .if eax == Delet_Clock  
+			   .if eax == Delet_Clock  
 			       .if clocks == 0
 				     invoke MessageBox,hWinMain,addr clocksNumAlert2,offset mptionMain,MB_OK
 				   .elseif
 				     invoke	DialogBoxParam,hInstance,DLG_ClockDelet,NULL,offset _clockDelet,NULL
 				   .endif
                .endif
+			   ;修改闹钟
+			   .if eax == Change_Clock
+			         .if clocks == 0
+				     invoke MessageBox,hWinMain,addr clocksNumAlert2,offset mptionMain,MB_OK
+				   .elseif
+				     invoke	DialogBoxParam,hInstance,DLG_ClockChange,NULL,offset _clockChange,NULL
+				   .endif
+			   .endif
 			   ;对音乐的选择
 			   .if	eax >=	Music1_Set && eax <= Music4_Set
 			    mov ebx,eax
@@ -703,6 +841,7 @@ _WinMain proc
 	invoke _clockArraySet,190303,0
 	invoke _clockArraySet,190304,1
 	invoke _clockArraySet,193400,2
+	mov MUSIC,5004h
     .while TRUE
         invoke GetMessage,addr @stMsg,NULL,0,0
         .break .if eax == 0
