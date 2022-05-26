@@ -2,11 +2,6 @@
 //
 #include "resource.h"
 
-// Generated Help ID header file
-#define APSTUDIO_HIDDEN_SYMBOLS
-#include "resource.hm"
-#undef APSTUDIO_HIDDEN_SYMBOLS
-
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -76,8 +71,8 @@ BEGIN
     END
     POPUP "外观(&B)"
     BEGIN
-        MENUITEM "数字式",                         ID_40004
-        MENUITEM "指针式",                         ID_40005
+        MENUITEM "指针式",                         Style1
+        MENUITEM "数字式",                         Style2
     END
     POPUP "音乐(&M)"
     BEGIN
@@ -91,7 +86,7 @@ BEGIN
     END
     POPUP "帮助(&H)"
     BEGIN
-        MENUITEM "联系作者",                        ID_40008
+        MENUITEM "联系作者\t Alt+A",                Help
     END
 END
 
@@ -103,10 +98,11 @@ END
 
 IDR_ACCELERATOR ACCELERATORS
 BEGIN
+    "C",            Change_Clock,           VIRTKEY, ALT, NOINVERT
     "D",            Delet_Clock,            VIRTKEY, ALT, NOINVERT
     VK_ESCAPE,      Exit,                   VIRTKEY, NOINVERT
     "N",            New_Clock,              VIRTKEY, ALT, NOINVERT
-    "C",            Change_Clock,           VIRTKEY, ALT, NOINVERT
+    "A",            Help,                   VIRTKEY, ALT, NOINVERT
 END
 
 
@@ -175,7 +171,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTERMOUSE | WS_POPUP | WS_CAPTION | WS_S
 CAPTION "闹钟设置"
 FONT 12, "宋体", 400, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "确定",SetClock_Confirm,16,81,50,14,BS_NOTIFY,0,HCCSet_Confirm
+    DEFPUSHBUTTON   "确定",SetClock_Confirm,16,81,50,14
     PUSHBUTTON      "取消",SetClock_Cancel,74,81,49,14
     LTEXT           "设置您的新闹钟！",IDC_STATIC,14,16,65,8
     CONTROL         "",DTP,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,16,35,107,26
@@ -208,7 +204,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTERMOUSE | WS_POPUP | WS_CAPTION | WS_S
 CAPTION "闹钟修改"
 FONT 12, "宋体", 400, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "确定",CCSet_Confirm,16,81,50,14,BS_NOTIFY,0,HCCSet_Confirm
+    DEFPUSHBUTTON   "确定",CCSet_Confirm,16,81,50,14
     PUSHBUTTON      "取消",CCSet_Cancel,74,81,49,14
     LTEXT           "修改时间！",IDC_STATIC,14,16,65,8
     CONTROL         "",CC_DTP1,"SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,16,35,107,26

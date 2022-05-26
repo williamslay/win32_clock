@@ -112,10 +112,14 @@
 
 ### day12 25/5/22
 - 主要成果
-    - 修改闹钟功能相关的按钮，菜单选项，加速键全部完成。参考文档[<sup>14</sup>](#refer-anchor-14)
+    - 修改闹钟功能相关的按钮，菜单选项，加速键全部完成。
 - 遇见的错误：
    - 使用`DTM_SETSYSTEMTIME`修改DTP中的时间时，注意对结构体的全部变量的赋值，不可贪图简单不做赋值，这会使得无法正确设置DTP中的时间。
    - 对话框的传参问题。这里注意一些局部变量很难存住某次信息所传的wparam，lparam，与windows实现机制有关，不可知。
+### day12 25/5/22
+- 主要成果
+    - 增加联系作者功能。参考文档[<sup>15</sup>](#refer-anchor-15)
+    - 开始尝试增加样式转换功能。
 ---
 ## References
 
@@ -143,7 +147,7 @@
 </span>
 <span id="refer-anchor-7">
 
--[7] [win32应用 -Fonts and Text](https://docs.microsoft.com/en-us/windows/win32/gdi/string-widths-and-heights)
+-[7] [win32应用 -Fonts and Text](https://docs.microsoft.com/en-us/windows/win32/gdi/fonts-and-text)
 </span>
 <span id="refer-anchor-8">
 
@@ -173,3 +177,8 @@
 
 -[14] [win32应用-List Box](https://docs.microsoft.com/en-us/windows/win32/controls/list-boxes)
 </span>
+<span id="refer-anchor-15">
+
+-[15] [win32函数库-ShellExecute](https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-shellexecutea)
+</span>
+

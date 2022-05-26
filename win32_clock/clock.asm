@@ -12,6 +12,8 @@ include kernel32.inc
 includelib kernel32.lib
 include		winmm.inc
 includelib	winmm.lib
+include  shell32.inc
+includelib  shell32.lib
 
 ; Equ 等值定义
 IDI_ICON equ 1000h;图标
@@ -21,10 +23,13 @@ New_Clock    equ 4001h
 Delet_Clock  equ 4002h
 Exit         equ 4003h
 Change_Clock equ 4004h
+Style1       equ 4101h
+Style2       equ 4102h
 Music1_Set   equ 4201h
 Music2_Set   equ 4202h
 Music3_Set   equ 4203h
 Music4_Set   equ 4204h
+Help         equ 4301h
 MUSIC_1 equ 5001h
 MUSIC_2 equ 5002h
 MUSIC_3 equ 5003h
@@ -58,6 +63,7 @@ timearray  dd 10 dup(?)
 clocks dd ?
 MUSIC dd ?
 temp dd ?
+styleFlag dd ?
 ; 常量
 .const
 szClassName db 'Win32Clock',0
@@ -81,6 +87,8 @@ clocksNumAlert4 db '您没有选择要删除的项！',0
 Button1txt db '增设',0
 Button2txt db '删除',0
 button db 'button',0
+open db 'open',0
+domain db 'https://github.com/williamslay',0
 ; 代码段
 .code
 
@@ -213,8 +221,8 @@ _DrawLine	proc	_hDC,_dwDegree,_dwRadiusAdjust
 		ret
 _DrawLine	endp
 
-;显示时间
-_ShowTime	proc	_hWnd,_hDC
+;显示时间（指针式）
+_ShowTime1	proc	_hWnd,_hDC
 		local	@stTime:SYSTEMTIME
 		local	@szBuffer[256]:byte
 		pushad
@@ -264,7 +272,25 @@ _ShowTime	proc	_hWnd,_hDC
 		popad
 		ret
 
-_ShowTime	endp
+_ShowTime1	endp
+
+;显示时间（指针式）
+_ShowTime2	proc	_hWnd,_hDC
+		local	@stTime:SYSTEMTIME
+		local	@szBuffer[256]:byte
+		local   @Font:LOGFONT
+		pushad
+		invoke	GetLocalTime,addr @stTime
+		mov  @Font.lfHeight, -30
+		mov  @Font.lfCharSet, GB2312_CHARSET
+		invoke  CreateFontIndirect,addr @Font
+		invoke SelectObject,_hDC,eax
+;---------------显示数字时间--------------------
+		invoke	wsprintf,addr @szBuffer,addr showTime,@stTime.wHour,@stTime.wMinute,@stTime.wSecond
+		invoke TextOut,_hDC,70,100,addr @szBuffer,8
+		popad
+		ret
+_ShowTime2	endp
 
 ;通过寄存器除法取余分别拿到预设时间的时分秒
 _getTime proc _time
@@ -685,14 +711,19 @@ _clock	endp
 ;消息处理主函数
 _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
     local	@stPS:PAINTSTRUCT
-	local @timechoose:INITCOMMONCONTROLSEX
     mov eax,uMsg
 	.if	eax ==	WM_TIMER;刷新定时器消息
 			invoke	InvalidateRect,hWnd,NULL,TRUE
 		.elseif	eax ==	WM_PAINT
-			invoke	BeginPaint,hWnd,addr @stPS
-			invoke	_ShowTime,hWnd,eax
-			invoke  _ShowClock,hWnd,eax
+		    .if styleFlag == 1
+			  invoke	BeginPaint,hWnd,addr @stPS
+			  invoke	_ShowTime1,hWnd,eax
+			  invoke  _ShowClock,hWnd,eax
+			.elseif styleFlag == 2
+			  invoke	BeginPaint,hWnd,addr @stPS
+			  invoke	_ShowTime2,hWnd,eax
+			  invoke  _ShowClock,hWnd,eax
+			.endif			
 			invoke	_clock,hWnd
 			invoke	EndPaint,hWnd,addr @stPS
 		.elseif	eax ==	WM_CREATE
@@ -789,6 +820,20 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 			    .endif
 			   invoke	CheckMenuRadioItem,hMenu,Music1_Set,Music4_Set,ebx,MF_BYCOMMAND			  
 @@:			  .endif
+               ;联系作者
+               .if eax == Help
+			       invoke ShellExecute,0,offset open,offset domain,NULL,0,0
+			   .endif
+			   ;样式修改
+               .if eax >= Style1 && eax <= Style2
+			       mov ebx,eax
+				      .if eax == Style1
+					    mov  styleFlag,1
+					  .elseif eax == Style2
+					    mov  styleFlag,2
+					  .endif
+			       invoke	CheckMenuRadioItem,hMenu,Style1,Style2,ebx,MF_BYCOMMAND	
+			   .endif
         .else  
             invoke DefWindowProc,hWnd,uMsg,wParam,lParam
           ret
@@ -842,6 +887,7 @@ _WinMain proc
 	invoke _clockArraySet,190304,1
 	invoke _clockArraySet,193400,2
 	mov MUSIC,5004h
+	mov styleFlag,1
     .while TRUE
         invoke GetMessage,addr @stMsg,NULL,0,0
         .break .if eax == 0
