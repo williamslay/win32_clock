@@ -32,12 +32,15 @@
   </ItemGroup>
   <ItemGroup>
     <Media Include="source\arb.wav" />
+    <Media Include="source\clair.wav" />
+    <Media Include="source\humore.wav" />
     <Media Include="source\r2.wav" />
     <Media Include="source\svc.wav" />
     <Media Include="source\t1.wav" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resource.hm" />
+    <None Include="source\wave1.bin" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -113,7 +116,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>
       </EntryPointSymbol>

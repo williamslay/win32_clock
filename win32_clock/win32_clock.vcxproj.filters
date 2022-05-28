@@ -47,10 +47,19 @@
     <Media Include="source\arb.wav">
       <Filter>资源文件</Filter>
     </Media>
+    <Media Include="source\humore.wav">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="source\clair.wav">
+      <Filter>资源文件</Filter>
+    </Media>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource.hm">
       <Filter>头文件</Filter>
+    </None>
+    <None Include="source\wave1.bin">
+      <Filter>资源文件</Filter>
     </None>
   </ItemGroup>
 </Project>

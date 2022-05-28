@@ -81,7 +81,7 @@ mptionMain db 'clock',0
 clockMessage db 'ling~ling~ling',0
 musicChange db '您确定要修改闹钟铃声吗？',0
 clocksNumAlert1 db '闹钟数量上限为10！',0
-clocksNumAlert2 db '当前没有闹钟可以删除！',0
+clocksNumAlert2 db '当前没有闹钟可以操作！',0
 clocksNumAlert3 db '当前没有闹钟！',0
 clocksNumAlert4 db '您没有选择要删除的项！',0
 Button1txt db '增设',0
@@ -89,6 +89,9 @@ Button2txt db '删除',0
 button db 'button',0
 open db 'open',0
 domain db 'https://github.com/williamslay',0
+Color1 dd 0A2B5CDh
+Color2 dd 0FFA07Ah
+Color3 dd 7B68EEh
 ; 代码段
 .code
 
@@ -96,7 +99,6 @@ domain db 'https://github.com/williamslay',0
 _dwPara180	dw	180
 _CalcX		proc	_dwDegree,_dwRadius;_dwDegree：角度，_dwRadius：半径
 		local	@dwReturn
-
 		fild	dwCenterX
 		fild	_dwDegree
 		fldpi
@@ -110,7 +112,6 @@ _CalcX		proc	_dwDegree,_dwRadius;_dwDegree：角度，_dwRadius：半径
 		fistp	@dwReturn
 		mov	eax,@dwReturn
 		ret
-
 _CalcX		endp
 
 ; 计算时钟圆周上指定角度半径对应的 Y 坐标
@@ -133,72 +134,7 @@ _CalcY		proc	_dwDegree,_dwRadius
 
 _CalcY		endp
 
-; 按照 _dwDegreeInc 的步进角度，画 _dwRadius 为半径的小圆点
-_DrawDot	proc	_hDC,_dwDegreeInc,_dwRadius
-		local	@dwNowDegree,@dwR
-		local	@dwX,@dwY
-
-		mov	@dwNowDegree,0
-		mov	eax,dwRadius
-		mov	@dwR,eax
-		.while	@dwNowDegree <360
-			finit
-; --------------计算小圆点的圆心坐标--------------
-            invoke	_CalcX,@dwNowDegree,@dwR
-			mov	@dwX,eax
-			invoke	_CalcY,@dwNowDegree,@dwR
-			mov	@dwY,eax
-; --------------画其它点--------------
-            mov	eax,@dwX	
-			mov	ebx,eax
-			mov	ecx,@dwY
-			mov	edx,ecx
-			sub	eax,_dwRadius
-			add	ebx,_dwRadius
-			sub	ecx,_dwRadius
-			add	edx,_dwRadius
-			invoke	Ellipse,_hDC,eax,ecx,ebx,edx
-; --------------画罗马数字--------------
-			.if @dwNowDegree==0
-			    mov eax,@dwX
-			    sub eax,7
-			    mov	@dwX,eax
-				mov eax,@dwY
-			    add eax,5
-			    mov	@dwY,eax
-			   invoke TextOut,_hDC,@dwX,@dwY,addr rome_12,2
-			.elseif @dwNowDegree==90
-			    mov eax,@dwX
-			    sub eax,23
-			    mov	@dwX,eax
-				mov eax,@dwY
-			    sub eax,5
-			    mov	@dwY,eax
-			   invoke TextOut,_hDC,@dwX,@dwY,addr rome_3,2
-			.elseif @dwNowDegree==180
-			    mov eax,@dwX
-			    sub eax,7
-			    mov	@dwX,eax
-				mov eax,@dwY
-			    sub eax,20
-			    mov	@dwY,eax
-			   invoke TextOut,_hDC,@dwX,@dwY,addr rome_6,2
-			.elseif @dwNowDegree==270
-			    mov eax,@dwX
-			    add eax,10
-			    mov	@dwX,eax
-				mov eax,@dwY
-			    sub eax,5
-			    mov	@dwY,eax
-			   invoke TextOut,_hDC,@dwX,@dwY,addr rome_9,2
-			.endif
-			mov	eax,_dwDegreeInc
-			add	@dwNowDegree,eax
-		.endw
-		ret
-_DrawDot	endp
-
-; 画 _dwDegree 角度的线条，半径=时钟半径-参数_dwRadiusAdjust
+; 画 _dwDegree 角度的指针线条，半径=时钟半径-参数_dwRadiusAdjust
 _DrawLine	proc	_hDC,_dwDegree,_dwRadiusAdjust
 		local	@dwR
 		local	@dwX1,@dwY1,@dwX2,@dwY2
@@ -221,6 +157,94 @@ _DrawLine	proc	_hDC,_dwDegree,_dwRadiusAdjust
 		ret
 _DrawLine	endp
 
+; 画 _dwDegree 角度的刻度线条
+_DrawScaleLine	proc	_hDC,_dwDegreeInc,_bold,_length,_color
+		local	@dwNowDegree,@dwR
+		local	@dwX1,@dwY1,@dwX2,@dwY2
+		local   @flag
+		mov	eax,dwRadius
+		mov	@dwR,eax
+		mov	@dwNowDegree,0
+		mov @flag,1
+		.while	@dwNowDegree <360
+		    finit
+			.if  _color == 1
+			    .if @flag == 1
+		            invoke	CreatePen,PS_SOLID,_bold,offset Color1
+		            invoke	SelectObject,_hDC,eax
+		            invoke	DeleteObject,eax
+			    .elseif @flag == 2
+			        invoke	CreatePen,PS_SOLID,_bold,offset Color2
+		            invoke	SelectObject,_hDC,eax
+		            invoke	DeleteObject,eax
+			    .elseif @flag == 3
+			        invoke	CreatePen,PS_SOLID,_bold,offset Color3
+		            invoke	SelectObject,_hDC,eax
+		            invoke	DeleteObject,eax
+					mov @flag,0
+		        .endif
+			.elseif _color == 0
+			        invoke	CreatePen,PS_SOLID,_bold,0
+		            invoke	SelectObject,_hDC,eax
+		            invoke	DeleteObject,eax
+			.endif
+; --------------计算线条两端的坐标--------------
+            mov	eax,dwRadius
+		    mov	@dwR,eax
+		    invoke	_CalcX,@dwNowDegree,@dwR
+		    mov	@dwX1,eax
+		    invoke	_CalcY,@dwNowDegree,@dwR
+		    mov	@dwY1,eax
+		    mov eax,@dwR
+		    sub eax,_length
+		    mov @dwR,eax
+		    invoke	_CalcX,@dwNowDegree,@dwR
+		    mov	@dwX2,eax
+		    invoke	_CalcY,@dwNowDegree,@dwR
+		    mov	@dwY2,eax
+		    invoke	MoveToEx,_hDC,@dwX1,@dwY1,NULL
+		    invoke	LineTo,_hDC,@dwX2,@dwY2
+; --------------画罗马数字--------------
+			.if @dwNowDegree==0
+			    mov eax,@dwX1
+			    sub eax,7
+			    mov	@dwX1,eax
+				mov eax,@dwY1
+			    add eax,12
+			    mov	@dwY1,eax
+			   invoke TextOut,_hDC,@dwX1,@dwY1,addr rome_12,2
+			.elseif @dwNowDegree==90
+			    mov eax,@dwX1
+			    sub eax,25
+			    mov	@dwX1,eax
+				mov eax,@dwY1
+			    sub eax,5
+			    mov	@dwY1,eax
+			   invoke TextOut,_hDC,@dwX1,@dwY1,addr rome_3,2
+			.elseif @dwNowDegree==180
+			    mov eax,@dwX1
+			    sub eax,7
+			    mov	@dwX1,eax
+				mov eax,@dwY1
+			    sub eax,28
+			    mov	@dwY1,eax
+			   invoke TextOut,_hDC,@dwX1,@dwY1,addr rome_6,2
+			.elseif @dwNowDegree==270
+			    mov eax,@dwX1
+			    add eax,12
+			    mov	@dwX1,eax
+				mov eax,@dwY1
+			    sub eax,5
+			    mov	@dwY1,eax
+			   invoke TextOut,_hDC,@dwX1,@dwY1,addr rome_9,2
+			.endif
+		    mov	eax,_dwDegreeInc
+		    add	@dwNowDegree,eax
+			inc @flag
+		.endw
+		ret
+_DrawScaleLine	endp
+
 ;显示时间（指针式）
 _ShowTime1	proc	_hWnd,_hDC
 		local	@stTime:SYSTEMTIME
@@ -230,8 +254,8 @@ _ShowTime1	proc	_hWnd,_hDC
 ; --------------画时钟圆周上的点--------------
 		invoke	GetStockObject,BLACK_BRUSH
 		invoke	SelectObject,_hDC,eax
-		invoke	_DrawDot,_hDC,360/12,3	;画12个大圆点
-		invoke	_DrawDot,_hDC,360/60,1	;画60个小圆点
+		invoke  _DrawScaleLine,_hDC,360/12,3,10,1;画12个长刻度
+		invoke  _DrawScaleLine,_hDC,360/60,1,5,0;画60个短刻度
 ;---------------画秒针---------------------
 		invoke	CreatePen,PS_SOLID,1,0
 		invoke	SelectObject,_hDC,eax
@@ -281,13 +305,16 @@ _ShowTime2	proc	_hWnd,_hDC
 		local   @Font:LOGFONT
 		pushad
 		invoke	GetLocalTime,addr @stTime
-		mov  @Font.lfHeight, -30
-		mov  @Font.lfCharSet, GB2312_CHARSET
+		mov  @Font.lfHeight, 50
+		mov  @Font.lfWidth,23
+		mov  @Font.lfEscapement,0
+		mov  @Font.lfOrientation,0
+		mov  @Font.lfWeight,FW_BOLD
 		invoke  CreateFontIndirect,addr @Font
 		invoke SelectObject,_hDC,eax
 ;---------------显示数字时间--------------------
 		invoke	wsprintf,addr @szBuffer,addr showTime,@stTime.wHour,@stTime.wMinute,@stTime.wSecond
-		invoke TextOut,_hDC,70,100,addr @szBuffer,8
+		invoke TextOut,_hDC,50,100,addr @szBuffer,8
 		popad
 		ret
 _ShowTime2	endp
@@ -338,8 +365,24 @@ _TimeChange endp
 _ShowClock	proc	_hWnd,_hDC       
         local	@szBuffer[256]:byte
 		local	@stRect:RECT
+		local   @Font:LOGFONT
 		pushad
-		invoke  SetRect,addr @stRect,300,20,380,60
+		mov  @Font.lfHeight, 15
+		mov  @Font.lfWidth,8
+		mov  @Font.lfEscapement,0
+		mov  @Font.lfOrientation,0
+		mov  @Font.lfWeight,400
+		mov  @Font.lfItalic,FALSE
+		mov  @Font.lfUnderline,FALSE
+		mov  @Font.lfStrikeOut,FALSE
+		mov  @Font.lfCharSet, GB2312_CHARSET
+		mov  @Font.lfOutPrecision,CLIP_DEFAULT_PRECIS
+		mov  @Font.lfQuality,PROOF_QUALITY
+		mov  @Font.lfPitchAndFamily,DEFAULT_PITCH
+		mov  @Font.lfFaceName , NULL
+		invoke  CreateFontIndirect,addr @Font
+		invoke SelectObject,_hDC,eax
+		invoke  SetRect,addr @stRect,300,20,440,60
 		invoke	DrawText,_hDC,addr showClock,-1,\
 				addr @stRect,\
 				DT_SINGLELINE or DT_VCENTER or DT_CENTER or DT_EDITCONTROL
@@ -689,13 +732,14 @@ _clock proc	_hWnd
 	       movzx	eax,@stTime.wMinute
 	       cmp eax,minute
 	       jnz @F
+		   add eax,second
 		   cmp eax,0
 		   jz @r
 	       movzx	eax,@stTime.wHour
 	       cmp eax,hour
 	       jnz @F
 	       jz @r
-@r:     invoke PlaySound,MUSIC,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
+@r:     invoke PlaySound,MUSIC,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT or SND_LOOP
         invoke  MessageBox,hWinMain,addr clockMessage,offset mptionMain,MB_OK
 		.if eax==1
 	   invoke  PlaySound,NULL,NULL,SND_ASYNC 
@@ -706,7 +750,6 @@ _clock proc	_hWnd
 	   popad
 	   ret 
 _clock	endp
-
 
 ;消息处理主函数
 _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
@@ -775,7 +818,7 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 			   .if	eax >=	Music1_Set && eax <= Music4_Set
 			    mov ebx,eax
 				.if eax == Music1_Set 
-				   invoke PlaySound,MUSIC_1,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
+				   invoke PlaySound,MUSIC_1,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT or SND_LOOP
 				   invoke MessageBox,hWinMain,addr musicChange,offset mptionMain,MB_YESNO
 			       .if eax == IDYES
 				    invoke  PlaySound,NULL,NULL,SND_ASYNC
@@ -786,7 +829,7 @@ _ProcWinMain proc uses ebx edi esi, hWnd, uMsg, wParam, lParam
 				   .endif
 			    .endif
 				.if eax == Music2_Set 
-				   invoke PlaySound,MUSIC_2,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT 
+				   invoke PlaySound,MUSIC_2,hInstance,SND_ASYNC or SND_RESOURCE or SND_NODEFAULT or SND_LOOP
 				   invoke MessageBox,hWinMain,addr musicChange,offset mptionMain,MB_YESNO
 			       .if eax == IDYES
 				    invoke  PlaySound,NULL,NULL,SND_ASYNC

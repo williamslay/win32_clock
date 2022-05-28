@@ -67,6 +67,7 @@ BEGIN
         MENUITEM "设置新闹钟\tAlt+N",                New_Clock
         MENUITEM "调整闹钟\tAlt+C",                 Change_Clock
         MENUITEM "删除闹钟\tAlt+D",                 Delet_Clock
+        MENUITEM SEPARATOR
         MENUITEM "退出\tExit",                    Exit
     END
     POPUP "外观(&B)"
@@ -78,10 +79,10 @@ BEGIN
     BEGIN
         POPUP "修改音乐"
         BEGIN
-            MENUITEM "Tchaikovsky no.1 piano conerto", MUSIC1_Set
-            MENUITEM "Rachmaninoff no.2 piano conerto", MUSIC2_Set
-            MENUITEM "Sibelius volin conerto",      MUSIC3_Set
-            MENUITEM "Debussy arabesque no.1",      MUSIC4_Set
+            MENUITEM "Debussy arabesque No.1",      MUSIC1_Set
+            MENUITEM "Rachmaninoff No.2 piano conerto", MUSIC2_Set
+            MENUITEM "Dvorak Humoresque No. 7 ",    MUSIC3_Set
+            MENUITEM "Debussy clair de lune",       MUSIC4_Set
         END
     END
     POPUP "帮助(&H)"
@@ -152,13 +153,13 @@ END
 // WAVE
 //
 
-MUSIC_1                 WAVE                    "source\\t1.wav"
-
 MUSIC_2                 WAVE                    "source\\r2.wav"
 
-MUSIC_3                 WAVE                    "source\\svc.wav"
+MUSIC_1                 WAVE                    "source\\arb.wav"
 
-MUSIC_4                 WAVE                    "source\\arb.wav"
+MUSIC_3                 WAVE                    "source\\humore.wav"
+
+MUSIC_4                 WAVE                    "source\\clair.wav"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -234,6 +235,44 @@ END
 IDD_CCSet AFX_DIALOG_LAYOUT
 BEGIN
     0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName", "williamslay"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "win32_cl.exe"
+            VALUE "LegalCopyright", "williamslay keep Copyright (C) 2022"
+            VALUE "OriginalFilename", "win32_cl.exe"
+            VALUE "ProductName", "win32 Music Clock"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
 END
 
 #endif    // 中文(简体，中国) resources
