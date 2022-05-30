@@ -298,7 +298,7 @@ _ShowTime1	proc	_hWnd,_hDC
 
 _ShowTime1	endp
 
-;显示时间（指针式）
+;显示时间（数字式）
 _ShowTime2	proc	_hWnd,_hDC
 		local	@stTime:SYSTEMTIME
 		local	@szBuffer[256]:byte
@@ -926,9 +926,10 @@ _WinMain proc
     invoke UpdateWindow,hWinMain
     ;-------消息循环---------
 	invoke _clockInit
-	invoke _clockArraySet,190303,0
-	invoke _clockArraySet,190304,1
-	invoke _clockArraySet,193400,2
+	invoke _clockArraySet,180315,0
+	invoke _clockArraySet,031504,1
+	invoke _clockArraySet,190303,2
+	invoke _clockArraySet,030334,3
 	mov MUSIC,5004h
 	mov styleFlag,1
     .while TRUE
